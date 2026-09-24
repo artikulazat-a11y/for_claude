@@ -49,6 +49,30 @@ FOLDERS.update({f"Sec{n}": t for n, t in SECTIONS.items()})
 FOLDERS.update({tag: spec[0] for tag, spec in FEEDERS.items()})
 
 
+class _QuietSessionFaults(logging.Filter):
+    """Отказы BadSessionNotActivated / BadSessionIdInvalid — штатная ситуация, а не авария:
+    клиент (UaExpert, SCADA) закрывает сессию, пока у него ещё висят запросы Publish,
+    или после перезапуска эмулятора пытается продолжить старую сессию."""
+
+    NOISE = {"BadSessionNotActivated", "BadSessionIdInvalid"}
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        args = record.args if isinstance(record.args, tuple) else ()
+        return not (str(record.msg).startswith("sending service fault response")
+                    and len(args) == 2 and args[1] in self.NOISE)
+
+
+def quiet_asyncua_logs() -> None:
+    """Не показывать в журнале штатные отказы сессий при отключении клиентов."""
+    logging.getLogger("asyncua.server.uaprocessor").addFilter(_QuietSessionFaults())
+
+
+def _peer(name: object) -> str:
+    if isinstance(name, tuple) and len(name) >= 2:
+        return f"{name[0]}:{name[1]}"
+    return str(name)
+
+
 class _ValidatingAttributeService(AttributeService):
     """Перехватывает записи клиентов в теги эмулятора: проверка диапазона, передача в модель."""
 
@@ -91,6 +115,7 @@ class SubstationServer:
         self._by_nodeid: dict[ua.NodeId, Tag] = {}
         self._published: dict[str, object] = {}
         self._evgen = None
+        self._clients: dict[int, str] = {}
         self.ready = asyncio.Event()
 
     def tag_for(self, nodeid: ua.NodeId) -> Tag | None:
@@ -175,6 +200,16 @@ class SubstationServer:
             self._evgen.event.Severity = severity
             await self._evgen.trigger(message=text)
 
+    def _log_clients(self) -> None:
+        """Журнал подключений клиентов (по активным сессиям OPC UA)."""
+        sessions = getattr(self.server.iserver, "_external_sessions", {})
+        active = {id(s): _peer(s.name) for s in list(sessions.values()) if s.is_activated()}
+        for key in active.keys() - self._clients.keys():
+            log.info("Клиент подключился: %s", active[key])
+        for key in self._clients.keys() - active.keys():
+            log.info("Клиент отключился: %s", self._clients[key])
+        self._clients = active
+
     def _save_setpoints(self) -> None:
         if not (self.setpoints_file and self.model.setpoints_dirty):
             return
@@ -193,11 +228,14 @@ class SubstationServer:
             log.info("OPC UA сервер запущен: %s (namespace ns=%d «%s», тегов: %d)",
                      self.endpoint, self.ns, NAMESPACE_URI, len(TAGS))
             self.ready.set()
-            last = loop.time()
+            last = last_clients = loop.time()
             while True:
                 now = loop.time()
                 self.model.step(min(now - last, 1.0))
                 last = now
                 await self._publish()
                 self._save_setpoints()
+                if now - last_clients >= 1.0:
+                    last_clients = now
+                    self._log_clients()
                 await asyncio.sleep(max(0.0, self.tick - (loop.time() - now)))

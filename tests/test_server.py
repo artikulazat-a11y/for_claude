@@ -114,3 +114,20 @@ async def test_fault_trips_feeder(emulator):
     assert await (await node(client, "Station.GeneralAlarm")).read_value() is True
     await asyncio.sleep(0.3)
     assert any(sev >= 800 and "МТЗ" in text for sev, text in handler.messages), handler.messages
+
+
+def test_benign_session_faults_hidden_real_errors_kept():
+    import logging
+
+    from substation_emulator.server import _QuietSessionFaults
+
+    f = _QuietSessionFaults()
+
+    def rec(msg, *args):
+        return logging.LogRecord("asyncua.server.uaprocessor", logging.ERROR, __file__, 0, msg, args, None)
+
+    fault = "sending service fault response: %s (%s)"
+    assert not f.filter(rec(fault, "The session cannot be used...", "BadSessionNotActivated"))
+    assert not f.filter(rec(fault, "The session id is not valid.", "BadSessionIdInvalid"))
+    assert f.filter(rec(fault, "An internal error occurred.", "BadInternalError"))
+    assert f.filter(rec("Error while processing message"))

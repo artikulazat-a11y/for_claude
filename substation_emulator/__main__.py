@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from .model import Model
-from .server import SubstationServer
+from .server import SubstationServer, quiet_asyncua_logs
 from .tags import TAGS, tags_csv
 
 
@@ -40,6 +40,7 @@ def main() -> None:
         logging.getLogger("asyncua").setLevel(logging.ERROR)
         # Ошибку запуска (занятый порт) сообщаем сами, без трассировки asyncua
         logging.getLogger("asyncua.server.server").setLevel(logging.CRITICAL)
+        quiet_asyncua_logs()
     if sys.platform == "win32":
         # Консоль Windows: вывод кириллицы без ошибок кодировки
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
