@@ -1,0 +1,66 @@
+name: Сборка exe для Windows
+
+on:
+  push:
+    paths-ignore: ["**.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows-exe:
+    runs-on: windows-latest
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt pyinstaller
+
+      - name: Тесты
+        run: python -m pytest -q
+
+      - name: Сборка exe
+        run: pyinstaller --noconfirm --onefile --name SubstationEmulator --collect-submodules asyncua --paths . packaging/entry.py
+
+      - name: Проверка exe через OPC UA клиент
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath dist\SubstationEmulator.exe -ArgumentList "--no-persist","--port","4841" -PassThru -NoNewWindow
+          python tools/smoke_test.py opc.tcp://127.0.0.1:4841/substation/
+          $code = $LASTEXITCODE
+          Stop-Process -Id $p.Id -Force
+          exit $code
+
+      - name: Архив
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory release | Out-Null
+          Copy-Item dist\SubstationEmulator.exe, README.md, tags.csv release\
+          Compress-Archive -Path release\* -DestinationPath SubstationEmulator-win64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SubstationEmulator-win64
+          path: release/
+
+      - name: Публикация в Releases
+        if: github.ref_name == github.event.repository.default_branch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v$(python -c 'import substation_emulator as s; print(s.__version__)')"
+          gh release delete "$TAG" --cleanup-tag --yes || true
+          gh release create "$TAG" dist/SubstationEmulator.exe SubstationEmulator-win64.zip \
+            --target "$GITHUB_SHA" --latest \
+            --title "Эмулятор ПС 110/10 кВ $TAG" \
+            --notes "Скачайте **SubstationEmulator.exe** и запустите двойным щелчком. Сервер: \`opc.tcp://<IP>:4840/substation/\` (Security None, анонимно). Архив zip дополнительно содержит README и перечень тегов tags.csv. Сборка из коммита $GITHUB_SHA."

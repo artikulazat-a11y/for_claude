@@ -5,3 +5,6 @@ __pycache__/
 venv/
 setpoints.json
 *.tmp
+build/
+dist/
+*.spec
