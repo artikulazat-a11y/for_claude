@@ -1,0 +1,124 @@
+﻿NodeId;Path;Type;Access;Unit;Min;Max;Default;Description
+"ns=2;s=Station.Heartbeat";Station.Heartbeat;UInt32;R;;;;;Счётчик жизни, +1 каждую секунду
+"ns=2;s=Station.SimTime";Station.SimTime;String;R;;;;;Модельное время (с учётом ускорения)
+"ns=2;s=Station.AmbientTemp";Station.AmbientTemp;Double;R;°C;;;;Температура наружного воздуха
+"ns=2;s=Station.Frequency";Station.Frequency;Double;R;Гц;;;;Частота сети
+"ns=2;s=Station.BatteryVoltage";Station.BatteryVoltage;Double;R;В;;;;Напряжение ЩПТ 220 В
+"ns=2;s=Station.RemoteMode";Station.RemoteMode;Boolean;W;;;;True;Режим управления: 1-дистанционный (команды SCADA разрешены), 0-местный
+"ns=2;s=Station.GeneralAlarm";Station.GeneralAlarm;Boolean;R;;;;;Обобщённая аварийная сигнализация
+"ns=2;s=Station.GeneralWarning";Station.GeneralWarning;Boolean;R;;;;;Обобщённая предупредительная сигнализация
+"ns=2;s=Station.AlarmReset";Station.AlarmReset;Boolean;CMD;;;;False;Квитирование: сброс указателей срабатывания
+"ns=2;s=Station.LastEvent";Station.LastEvent;String;R;;;;;Последнее событие журнала
+"ns=2;s=VL1.U";VL1.U;Double;R;кВ;;;;ВЛ-110 кВ №1: линейное напряжение
+"ns=2;s=VL1.SimLoss";VL1.SimLoss;Boolean;W;;;;False;ВЛ-110 кВ №1: имитация исчезновения напряжения на линии
+"ns=2;s=VL1.DS.State";VL1.DS.State;Int32;R;;;;;ВЛ-110 кВ №1, линейный разъединитель: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=VL1.DS.CmdClose";VL1.DS.CmdClose;Boolean;CMD;;;;False;ВЛ-110 кВ №1, линейный разъединитель: команда «Включить»
+"ns=2;s=VL1.DS.CmdOpen";VL1.DS.CmdOpen;Boolean;CMD;;;;False;ВЛ-110 кВ №1, линейный разъединитель: команда «Отключить»
+"ns=2;s=VL1.CB.State";VL1.CB.State;Int32;R;;;;;ВЛ-110 кВ №1, выключатель 110 кВ: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=VL1.CB.CmdClose";VL1.CB.CmdClose;Boolean;CMD;;;;False;ВЛ-110 кВ №1, выключатель 110 кВ: команда «Включить»
+"ns=2;s=VL1.CB.CmdOpen";VL1.CB.CmdOpen;Boolean;CMD;;;;False;ВЛ-110 кВ №1, выключатель 110 кВ: команда «Отключить»
+"ns=2;s=VL2.U";VL2.U;Double;R;кВ;;;;ВЛ-110 кВ №2: линейное напряжение
+"ns=2;s=VL2.SimLoss";VL2.SimLoss;Boolean;W;;;;False;ВЛ-110 кВ №2: имитация исчезновения напряжения на линии
+"ns=2;s=VL2.DS.State";VL2.DS.State;Int32;R;;;;;ВЛ-110 кВ №2, линейный разъединитель: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=VL2.DS.CmdClose";VL2.DS.CmdClose;Boolean;CMD;;;;False;ВЛ-110 кВ №2, линейный разъединитель: команда «Включить»
+"ns=2;s=VL2.DS.CmdOpen";VL2.DS.CmdOpen;Boolean;CMD;;;;False;ВЛ-110 кВ №2, линейный разъединитель: команда «Отключить»
+"ns=2;s=VL2.CB.State";VL2.CB.State;Int32;R;;;;;ВЛ-110 кВ №2, выключатель 110 кВ: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=VL2.CB.CmdClose";VL2.CB.CmdClose;Boolean;CMD;;;;False;ВЛ-110 кВ №2, выключатель 110 кВ: команда «Включить»
+"ns=2;s=VL2.CB.CmdOpen";VL2.CB.CmdOpen;Boolean;CMD;;;;False;ВЛ-110 кВ №2, выключатель 110 кВ: команда «Отключить»
+"ns=2;s=T1.P";T1.P;Double;R;МВт;;;;Т1 (ТДН-16000/110/10): активная мощность (сторона ВН)
+"ns=2;s=T1.Q";T1.Q;Double;R;Мвар;;;;Т1 (ТДН-16000/110/10): реактивная мощность (сторона ВН)
+"ns=2;s=T1.I_HV";T1.I_HV;Double;R;А;;;;Т1 (ТДН-16000/110/10): ток стороны ВН
+"ns=2;s=T1.U_LV";T1.U_LV;Double;R;кВ;;;;Т1 (ТДН-16000/110/10): напряжение на выводах НН
+"ns=2;s=T1.Load";T1.Load;Double;R;%;;;;Т1 (ТДН-16000/110/10): загрузка от номинальной мощности
+"ns=2;s=T1.OilTemp";T1.OilTemp;Double;R;°C;;;;Т1 (ТДН-16000/110/10): температура верхних слоёв масла
+"ns=2;s=T1.WindingTemp";T1.WindingTemp;Double;R;°C;;;;Т1 (ТДН-16000/110/10): температура наиболее нагретой точки обмотки
+"ns=2;s=T1.Tap.Position";T1.Tap.Position;Int32;R;;;;;Т1 (ТДН-16000/110/10): положение РПН (1…19, 10 — номинал)
+"ns=2;s=T1.Tap.InProgress";T1.Tap.InProgress;Boolean;R;;;;;Т1 (ТДН-16000/110/10): РПН в процессе переключения
+"ns=2;s=T1.Tap.CmdRaise";T1.Tap.CmdRaise;Boolean;CMD;;;;False;Т1 (ТДН-16000/110/10): РПН «Прибавить» (только в ручном режиме АРНТ)
+"ns=2;s=T1.Tap.CmdLower";T1.Tap.CmdLower;Boolean;CMD;;;;False;Т1 (ТДН-16000/110/10): РПН «Убавить» (только в ручном режиме АРНТ)
+"ns=2;s=T1.AVR.Auto";T1.AVR.Auto;Boolean;W;;;;True;Т1 (ТДН-16000/110/10): АРНТ — 1-автоматический режим, 0-ручной
+"ns=2;s=T1.AVR.Uset";T1.AVR.Uset;Double;W;кВ;9.5;11.5;10.5;Т1 (ТДН-16000/110/10): АРНТ — уставка напряжения
+"ns=2;s=T1.AVR.Deadband";T1.AVR.Deadband;Double;W;%;0.5;5.0;1.2;Т1 (ТДН-16000/110/10): АРНТ — зона нечувствительности
+"ns=2;s=T1.AVR.Delay";T1.AVR.Delay;Double;W;с;5.0;300.0;30.0;Т1 (ТДН-16000/110/10): АРНТ — выдержка времени
+"ns=2;s=T1.Cooling.FansOn";T1.Cooling.FansOn;Boolean;R;;;;;Т1 (ТДН-16000/110/10): вентиляторы обдува (система охлаждения Д) включены
+"ns=2;s=T1.Cooling.FanOnTemp";T1.Cooling.FanOnTemp;Double;W;°C;30.0;80.0;55.0;Т1 (ТДН-16000/110/10): уставка включения обдува по температуре масла
+"ns=2;s=T1.Alarm.OilTemp";T1.Alarm.OilTemp;Boolean;R;;;;;Т1 (ТДН-16000/110/10): сигнал «Повышение температуры масла»
+"ns=2;s=T1.Alarm.OilTempSet";T1.Alarm.OilTempSet;Double;W;°C;60.0;105.0;85.0;Т1 (ТДН-16000/110/10): уставка сигнала повышения температуры масла
+"ns=2;s=T1.Alarm.Overload";T1.Alarm.Overload;Boolean;R;;;;;Т1 (ТДН-16000/110/10): сигнал «Перегрузка» (>105% более 10 с)
+"ns=2;s=T2.P";T2.P;Double;R;МВт;;;;Т2 (ТДН-16000/110/10): активная мощность (сторона ВН)
+"ns=2;s=T2.Q";T2.Q;Double;R;Мвар;;;;Т2 (ТДН-16000/110/10): реактивная мощность (сторона ВН)
+"ns=2;s=T2.I_HV";T2.I_HV;Double;R;А;;;;Т2 (ТДН-16000/110/10): ток стороны ВН
+"ns=2;s=T2.U_LV";T2.U_LV;Double;R;кВ;;;;Т2 (ТДН-16000/110/10): напряжение на выводах НН
+"ns=2;s=T2.Load";T2.Load;Double;R;%;;;;Т2 (ТДН-16000/110/10): загрузка от номинальной мощности
+"ns=2;s=T2.OilTemp";T2.OilTemp;Double;R;°C;;;;Т2 (ТДН-16000/110/10): температура верхних слоёв масла
+"ns=2;s=T2.WindingTemp";T2.WindingTemp;Double;R;°C;;;;Т2 (ТДН-16000/110/10): температура наиболее нагретой точки обмотки
+"ns=2;s=T2.Tap.Position";T2.Tap.Position;Int32;R;;;;;Т2 (ТДН-16000/110/10): положение РПН (1…19, 10 — номинал)
+"ns=2;s=T2.Tap.InProgress";T2.Tap.InProgress;Boolean;R;;;;;Т2 (ТДН-16000/110/10): РПН в процессе переключения
+"ns=2;s=T2.Tap.CmdRaise";T2.Tap.CmdRaise;Boolean;CMD;;;;False;Т2 (ТДН-16000/110/10): РПН «Прибавить» (только в ручном режиме АРНТ)
+"ns=2;s=T2.Tap.CmdLower";T2.Tap.CmdLower;Boolean;CMD;;;;False;Т2 (ТДН-16000/110/10): РПН «Убавить» (только в ручном режиме АРНТ)
+"ns=2;s=T2.AVR.Auto";T2.AVR.Auto;Boolean;W;;;;True;Т2 (ТДН-16000/110/10): АРНТ — 1-автоматический режим, 0-ручной
+"ns=2;s=T2.AVR.Uset";T2.AVR.Uset;Double;W;кВ;9.5;11.5;10.5;Т2 (ТДН-16000/110/10): АРНТ — уставка напряжения
+"ns=2;s=T2.AVR.Deadband";T2.AVR.Deadband;Double;W;%;0.5;5.0;1.2;Т2 (ТДН-16000/110/10): АРНТ — зона нечувствительности
+"ns=2;s=T2.AVR.Delay";T2.AVR.Delay;Double;W;с;5.0;300.0;30.0;Т2 (ТДН-16000/110/10): АРНТ — выдержка времени
+"ns=2;s=T2.Cooling.FansOn";T2.Cooling.FansOn;Boolean;R;;;;;Т2 (ТДН-16000/110/10): вентиляторы обдува (система охлаждения Д) включены
+"ns=2;s=T2.Cooling.FanOnTemp";T2.Cooling.FanOnTemp;Double;W;°C;30.0;80.0;55.0;Т2 (ТДН-16000/110/10): уставка включения обдува по температуре масла
+"ns=2;s=T2.Alarm.OilTemp";T2.Alarm.OilTemp;Boolean;R;;;;;Т2 (ТДН-16000/110/10): сигнал «Повышение температуры масла»
+"ns=2;s=T2.Alarm.OilTempSet";T2.Alarm.OilTempSet;Double;W;°C;60.0;105.0;85.0;Т2 (ТДН-16000/110/10): уставка сигнала повышения температуры масла
+"ns=2;s=T2.Alarm.Overload";T2.Alarm.Overload;Boolean;R;;;;;Т2 (ТДН-16000/110/10): сигнал «Перегрузка» (>105% более 10 с)
+"ns=2;s=Sec1.U";Sec1.U;Double;R;кВ;;;;1 СШ 10 кВ: линейное напряжение
+"ns=2;s=Sec1.InCB.State";Sec1.InCB.State;Int32;R;;;;;1 СШ 10 кВ, вводной выключатель от Т1: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=Sec1.InCB.CmdClose";Sec1.InCB.CmdClose;Boolean;CMD;;;;False;1 СШ 10 кВ, вводной выключатель от Т1: команда «Включить»
+"ns=2;s=Sec1.InCB.CmdOpen";Sec1.InCB.CmdOpen;Boolean;CMD;;;;False;1 СШ 10 кВ, вводной выключатель от Т1: команда «Отключить»
+"ns=2;s=Sec1.InCB.I";Sec1.InCB.I;Double;R;А;;;;1 СШ 10 кВ, вводной выключатель: ток
+"ns=2;s=Sec2.U";Sec2.U;Double;R;кВ;;;;2 СШ 10 кВ: линейное напряжение
+"ns=2;s=Sec2.InCB.State";Sec2.InCB.State;Int32;R;;;;;2 СШ 10 кВ, вводной выключатель от Т2: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=Sec2.InCB.CmdClose";Sec2.InCB.CmdClose;Boolean;CMD;;;;False;2 СШ 10 кВ, вводной выключатель от Т2: команда «Включить»
+"ns=2;s=Sec2.InCB.CmdOpen";Sec2.InCB.CmdOpen;Boolean;CMD;;;;False;2 СШ 10 кВ, вводной выключатель от Т2: команда «Отключить»
+"ns=2;s=Sec2.InCB.I";Sec2.InCB.I;Double;R;А;;;;2 СШ 10 кВ, вводной выключатель: ток
+"ns=2;s=SecCB.State";SecCB.State;Int32;R;;;;;Секционный выключатель 10 кВ (СВ): положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=SecCB.CmdClose";SecCB.CmdClose;Boolean;CMD;;;;False;Секционный выключатель 10 кВ (СВ): команда «Включить»
+"ns=2;s=SecCB.CmdOpen";SecCB.CmdOpen;Boolean;CMD;;;;False;Секционный выключатель 10 кВ (СВ): команда «Отключить»
+"ns=2;s=SecCB.I";SecCB.I;Double;R;А;;;;Секционный выключатель 10 кВ: ток
+"ns=2;s=ABR.Enabled";ABR.Enabled;Boolean;W;;;;True;АВР 10 кВ: 1-введён, 0-выведен
+"ns=2;s=ABR.Delay";ABR.Delay;Double;W;с;0.5;30.0;2.0;АВР 10 кВ: выдержка времени
+"ns=2;s=ABR.Operated";ABR.Operated;Boolean;R;;;;;АВР 10 кВ: сработал (сброс квитированием)
+"ns=2;s=F1.P";F1.P;Double;R;МВт;;;;Ф-101 ЖК «Северный»: активная мощность
+"ns=2;s=F1.Q";F1.Q;Double;R;Мвар;;;;Ф-101 ЖК «Северный»: реактивная мощность
+"ns=2;s=F1.I";F1.I;Double;R;А;;;;Ф-101 ЖК «Северный»: ток
+"ns=2;s=F1.CB.State";F1.CB.State;Int32;R;;;;;Ф-101 ЖК «Северный», выключатель: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=F1.CB.CmdClose";F1.CB.CmdClose;Boolean;CMD;;;;False;Ф-101 ЖК «Северный», выключатель: команда «Включить»
+"ns=2;s=F1.CB.CmdOpen";F1.CB.CmdOpen;Boolean;CMD;;;;False;Ф-101 ЖК «Северный», выключатель: команда «Отключить»
+"ns=2;s=F1.Prot.Iset";F1.Prot.Iset;Double;W;А;50.0;2000.0;400.0;Ф-101 ЖК «Северный»: МТЗ — уставка по току
+"ns=2;s=F1.Prot.Tset";F1.Prot.Tset;Double;W;с;0.1;5.0;0.5;Ф-101 ЖК «Северный»: МТЗ — выдержка времени
+"ns=2;s=F1.Prot.Trip";F1.Prot.Trip;Boolean;R;;;;;Ф-101 ЖК «Северный»: срабатывание МТЗ (сброс квитированием)
+"ns=2;s=F1.SimFault";F1.SimFault;Boolean;W;;;;False;Ф-101 ЖК «Северный»: имитация КЗ на линии (устойчивое, до снятия)
+"ns=2;s=F2.P";F2.P;Double;R;МВт;;;;Ф-102 Завод ЖБИ: активная мощность
+"ns=2;s=F2.Q";F2.Q;Double;R;Мвар;;;;Ф-102 Завод ЖБИ: реактивная мощность
+"ns=2;s=F2.I";F2.I;Double;R;А;;;;Ф-102 Завод ЖБИ: ток
+"ns=2;s=F2.CB.State";F2.CB.State;Int32;R;;;;;Ф-102 Завод ЖБИ, выключатель: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=F2.CB.CmdClose";F2.CB.CmdClose;Boolean;CMD;;;;False;Ф-102 Завод ЖБИ, выключатель: команда «Включить»
+"ns=2;s=F2.CB.CmdOpen";F2.CB.CmdOpen;Boolean;CMD;;;;False;Ф-102 Завод ЖБИ, выключатель: команда «Отключить»
+"ns=2;s=F2.Prot.Iset";F2.Prot.Iset;Double;W;А;50.0;2000.0;600.0;Ф-102 Завод ЖБИ: МТЗ — уставка по току
+"ns=2;s=F2.Prot.Tset";F2.Prot.Tset;Double;W;с;0.1;5.0;0.7;Ф-102 Завод ЖБИ: МТЗ — выдержка времени
+"ns=2;s=F2.Prot.Trip";F2.Prot.Trip;Boolean;R;;;;;Ф-102 Завод ЖБИ: срабатывание МТЗ (сброс квитированием)
+"ns=2;s=F2.SimFault";F2.SimFault;Boolean;W;;;;False;Ф-102 Завод ЖБИ: имитация КЗ на линии (устойчивое, до снятия)
+"ns=2;s=F3.P";F3.P;Double;R;МВт;;;;Ф-201 Мкр «Южный»: активная мощность
+"ns=2;s=F3.Q";F3.Q;Double;R;Мвар;;;;Ф-201 Мкр «Южный»: реактивная мощность
+"ns=2;s=F3.I";F3.I;Double;R;А;;;;Ф-201 Мкр «Южный»: ток
+"ns=2;s=F3.CB.State";F3.CB.State;Int32;R;;;;;Ф-201 Мкр «Южный», выключатель: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=F3.CB.CmdClose";F3.CB.CmdClose;Boolean;CMD;;;;False;Ф-201 Мкр «Южный», выключатель: команда «Включить»
+"ns=2;s=F3.CB.CmdOpen";F3.CB.CmdOpen;Boolean;CMD;;;;False;Ф-201 Мкр «Южный», выключатель: команда «Отключить»
+"ns=2;s=F3.Prot.Iset";F3.Prot.Iset;Double;W;А;50.0;2000.0;400.0;Ф-201 Мкр «Южный»: МТЗ — уставка по току
+"ns=2;s=F3.Prot.Tset";F3.Prot.Tset;Double;W;с;0.1;5.0;0.5;Ф-201 Мкр «Южный»: МТЗ — выдержка времени
+"ns=2;s=F3.Prot.Trip";F3.Prot.Trip;Boolean;R;;;;;Ф-201 Мкр «Южный»: срабатывание МТЗ (сброс квитированием)
+"ns=2;s=F3.SimFault";F3.SimFault;Boolean;W;;;;False;Ф-201 Мкр «Южный»: имитация КЗ на линии (устойчивое, до снятия)
+"ns=2;s=F4.P";F4.P;Double;R;МВт;;;;Ф-202 ТЦ «Парк»: активная мощность
+"ns=2;s=F4.Q";F4.Q;Double;R;Мвар;;;;Ф-202 ТЦ «Парк»: реактивная мощность
+"ns=2;s=F4.I";F4.I;Double;R;А;;;;Ф-202 ТЦ «Парк»: ток
+"ns=2;s=F4.CB.State";F4.CB.State;Int32;R;;;;;Ф-202 ТЦ «Парк», выключатель: положение (0-промежуточное, 1-отключен, 2-включен)
+"ns=2;s=F4.CB.CmdClose";F4.CB.CmdClose;Boolean;CMD;;;;False;Ф-202 ТЦ «Парк», выключатель: команда «Включить»
+"ns=2;s=F4.CB.CmdOpen";F4.CB.CmdOpen;Boolean;CMD;;;;False;Ф-202 ТЦ «Парк», выключатель: команда «Отключить»
+"ns=2;s=F4.Prot.Iset";F4.Prot.Iset;Double;W;А;50.0;2000.0;350.0;Ф-202 ТЦ «Парк»: МТЗ — уставка по току
+"ns=2;s=F4.Prot.Tset";F4.Prot.Tset;Double;W;с;0.1;5.0;0.5;Ф-202 ТЦ «Парк»: МТЗ — выдержка времени
+"ns=2;s=F4.Prot.Trip";F4.Prot.Trip;Boolean;R;;;;;Ф-202 ТЦ «Парк»: срабатывание МТЗ (сброс квитированием)
+"ns=2;s=F4.SimFault";F4.SimFault;Boolean;W;;;;False;Ф-202 ТЦ «Парк»: имитация КЗ на линии (устойчивое, до снятия)
