@@ -131,3 +131,50 @@ def test_benign_session_faults_hidden_real_errors_kept():
     assert not f.filter(rec(fault, "The session id is not valid.", "BadSessionIdInvalid"))
     assert f.filter(rec(fault, "An internal error occurred.", "BadInternalError"))
     assert f.filter(rec("Error while processing message"))
+
+
+async def test_meters_persist_across_restart(tmp_path):
+    state_file = tmp_path / "state.json"
+
+    async def start(port):
+        model = Model(seed=5, time_scale=60, start=datetime(2026, 9, 24, 12, 0))
+        srv = SubstationServer(model, host="127.0.0.1", port=port, tick=0.05,
+                               setpoints_file=str(state_file), state_save_period=0.2)
+        task = asyncio.create_task(srv.run())
+        await asyncio.wait_for(srv.ready.wait(), 10)
+        return srv, task
+
+    async def stop(task):
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+    srv, task = await start(PORT + 1)
+    async with Client(f"opc.tcp://127.0.0.1:{PORT + 1}/substation/") as client:
+        meter = await node(client, "Meter.F1.Aplus")
+        a0 = await meter.read_value()
+        await asyncio.sleep(1.5)
+        a1 = await meter.read_value()
+        assert a1 > a0 > 0
+        desc = (await (await node(client, "Meter.T1")).read_description()).Text
+        assert "110 кВ" in desc
+    await stop(task)
+    srv.save_state(force=True)
+    saved = json.loads(state_file.read_text(encoding="utf-8"))["Meter.F1.Aplus"]
+    assert saved >= a1
+
+    srv2, task2 = await start(PORT + 2)
+    try:
+        assert srv2.model.meters["F1"].a >= saved  # после перезапуска показания продолжаются
+    finally:
+        await stop(task2)
+
+
+def test_state_not_saved_before_it_was_loaded(tmp_path):
+    state_file = tmp_path / "state.json"
+    state_file.write_text(json.dumps({"Meter.F1.Aplus": 123.0}), encoding="utf-8")
+    srv = SubstationServer(Model(seed=1), setpoints_file=str(state_file))
+    srv.save_state(force=True)  # например, Ctrl+C сразу после запуска
+    assert json.loads(state_file.read_text(encoding="utf-8")) == {"Meter.F1.Aplus": 123.0}

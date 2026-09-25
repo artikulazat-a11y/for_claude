@@ -13,6 +13,21 @@ from .server import SubstationServer, quiet_asyncua_logs
 from .tags import TAGS, tags_csv
 
 
+def _save_on_console_close(srv: SubstationServer) -> None:
+    """Windows: при закрытии окна консоли (крестиком) успеть сохранить показания счётчиков."""
+    import ctypes
+
+    handler_type = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)
+
+    def handler(event: int) -> int:
+        if event in (2, 5, 6):  # CTRL_CLOSE_EVENT, CTRL_LOGOFF_EVENT, CTRL_SHUTDOWN_EVENT
+            srv.save_state(force=True)
+        return 0  # дальше — стандартная обработка (Ctrl+C -> KeyboardInterrupt, закрытие -> выход)
+
+    srv.console_handler = handler_type(handler)  # держим ссылку, иначе колбэк удалит сборщик мусора
+    ctypes.windll.kernel32.SetConsoleCtrlHandler(srv.console_handler, True)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(prog="substation_emulator", description="OPC UA эмулятор ПС 110/10 кВ")
     ap.add_argument("--host", default="0.0.0.0", help="адрес для прослушивания (по умолчанию все интерфейсы)")
@@ -55,10 +70,13 @@ def main() -> None:
     model = Model(time_scale=args.time_scale, seed=args.seed)
     srv = SubstationServer(model, host=args.host, port=args.port, tick=args.tick,
                            setpoints_file=None if args.no_persist else setpoints)
+    if sys.platform == "win32" and srv.setpoints_file:
+        _save_on_console_close(srv)
     try:
         asyncio.run(srv.run())
     except KeyboardInterrupt:
-        print("Остановлено.")
+        srv.save_state(force=True)
+        print("Остановлено, показания счётчиков сохранены.")
     except Exception as e:
         if isinstance(e, OSError):
             logging.error("Не удалось открыть порт %d: %s. Порт занят другой программой "

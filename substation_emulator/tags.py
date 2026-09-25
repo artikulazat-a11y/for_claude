@@ -52,6 +52,14 @@ FEEDERS = {
     "F4": ("Ф-202 ТЦ «Парк»", 2, "commercial", 2.6, 0.90, 350.0, 0.5),
 }
 
+# Счётчики электроэнергии (АИИС КУЭ): tag -> место установки
+METERS = {
+    **{f"T{n}": f"Т{n}, сторона 110 кВ" for n in TRANSFORMERS},
+    **{f"In{n}": f"Ввод 10 кВ от Т{n} ({title})" for n, title in SECTIONS.items()},
+    **{tag: spec[0] for tag, spec in FEEDERS.items()},
+    **{f"Aux{n}": f"ТСН-{n}, собственные нужды ({title})" for n, title in SECTIONS.items()},
+}
+
 
 def _switch(prefix: str, title: str) -> list[Tag]:
     return [
@@ -140,6 +148,12 @@ def build_tags() -> list[Tag]:
             Tag(f"{p}.Prot.Trip", "Boolean", READ, f"{title}: срабатывание МТЗ (сброс квитированием)"),
             Tag(f"{p}.SimFault", "Boolean", WRITE,
                 f"{title}: имитация КЗ на линии (устойчивое, до снятия)", default=False, persist=False),
+        ]
+
+    for key, place in METERS.items():
+        t += [
+            Tag(f"Meter.{key}.Aplus", "Double", READ, f"Счётчик «{place}»: активная энергия, приём (A+)", "кВт·ч"),
+            Tag(f"Meter.{key}.Rplus", "Double", READ, f"Счётчик «{place}»: реактивная энергия, приём (R+)", "квар·ч"),
         ]
 
     return [

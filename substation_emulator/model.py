@@ -3,7 +3,8 @@
 Схема: две ВЛ-110 кВ -> линейный разъединитель -> выключатель 110 кВ ->
 трансформатор ТДН-16000/110/10 с РПН -> вводной выключатель 10 кВ ->
 секция шин 10 кВ. Секции связаны секционным выключателем (СВ) с АВР.
-На каждой секции по два фидера с МТЗ.
+На каждой секции по два фидера с МТЗ. Учёт энергии — 10 счётчиков:
+Т1/Т2 на стороне 110 кВ, вводы 10 кВ, фидеры, ТСН собственных нужд.
 
 Модель считается шагами ``step(dt)``; клиентские записи приходят через
 ``write(path, value)``. Результат — словарь ``values`` (путь тега -> значение).
@@ -16,7 +17,7 @@ import random
 from datetime import datetime, timedelta
 
 from .tags import (
-    CLOSED, CMD, FEEDERS, INTERMEDIATE, LINES, OPEN, SECTIONS, TAGS, TAGS_BY_PATH, TRANSFORMERS,
+    CLOSED, CMD, FEEDERS, INTERMEDIATE, LINES, METERS, OPEN, SECTIONS, TAGS, TAGS_BY_PATH, TRANSFORMERS, WRITE,
 )
 
 SQRT3 = math.sqrt(3.0)
@@ -34,6 +35,8 @@ PROFILES = {
                    1.00, 0.98, 0.97, 0.96, 0.95, 0.93, 0.90, 0.85, 0.75, 0.60, 0.45, 0.35],
 }
 WEEKEND_FACTOR = {"residential": 1.05, "industrial": 0.45, "commercial": 1.10}
+# Сезонность: максимум в середине января (отопление, освещение), минимум летом
+SEASON_AMPLITUDE = {"residential": 0.15, "industrial": 0.04, "commercial": 0.08}
 
 # Среднемесячная температура воздуха (средняя полоса), °C
 MONTHLY_MEAN_TEMP = [-7, -6, -1, 6, 13, 17, 19, 17, 11, 5, -1, -5]
@@ -48,6 +51,7 @@ def profile_value(name: str, t: datetime) -> float:
     v = p[i] * (1 - w) + p[(i + 1) % 24] * w
     if t.weekday() >= 5:
         v *= WEEKEND_FACTOR[name]
+    v *= 1 + SEASON_AMPLITUDE[name] * math.cos(2 * math.pi * (t.timetuple().tm_yday - 15) / 365.25)
     return v
 
 
@@ -228,7 +232,7 @@ class Feeder:
     def set_energized(self, on: bool, dt: float) -> None:
         if on and not self.energized:
             # Самозапуск / «холодная» нагрузка: тем больше, чем дольше не было питания
-            self.pickup = 0.25 + 0.5 * min(1.0, self.off_time / 1800)
+            self.pickup = 0.25 + 0.35 * min(1.0, self.off_time / 1800)
             self.on_time = 0.0
         if on:
             self.on_time += dt
@@ -249,9 +253,26 @@ class Feeder:
         return max(0.0, p0 * vf), max(0.0, q0 * vf * vf)
 
 
+class Meter:
+    """Счётчик электроэнергии: накапливает A+ (класс 0,5S) и R+ (класс 1) со своей погрешностью."""
+
+    def __init__(self, key: str, rng: random.Random, daily_mwh: float):
+        self.key = key
+        # Индивидуальная погрешность в пределах класса точности — из-за неё баланс не сходится «в ноль»
+        self.err_a = rng.uniform(-0.003, 0.003)
+        self.err_r = rng.uniform(-0.006, 0.006)
+        # Показания счётчика, проработавшего 1–4 года
+        days = rng.uniform(365, 1500)
+        self.a = round(daily_mwh * 1000 * days)  # кВт·ч
+        self.r = round(self.a * rng.uniform(0.35, 0.55))  # квар·ч
+
+    def add(self, p_mw: float, q_mvar: float, hours: float) -> None:
+        self.a += max(0.0, p_mw) * 1000 * hours * (1 + self.err_a)
+        self.r += max(0.0, q_mvar) * 1000 * hours * (1 + self.err_r)
+
+
 class Model:
     TICK_ANALOG = 0.5  # период обновления аналоговых измерений, с
-    AUX_P, AUX_Q = 0.04, 0.02  # собственные нужды на секцию (ТСН), МВт / Мвар
     X_SYSTEM = 0.06  # сопротивление энергосистемы, приведённое к 10 кВ, Ом
 
     def __init__(self, time_scale: float = 1.0, seed: int | None = None, start: datetime | None = None):
@@ -273,6 +294,9 @@ class Model:
                      for n, title in SECTIONS.items()}
         self.seccb = Switch("SecCB", "Секционный выключатель 10 кВ", False, 0.07, rng)
         self.feeders = {tag: Feeder(tag, spec, rng) for tag, spec in FEEDERS.items()}
+        daily = {key: 110.0 if key[0] in "TI" else 0.8 if key.startswith("Aux")
+                 else FEEDERS[key][3] * 0.65 * 24 for key in METERS}
+        self.meters = {key: Meter(key, rng, daily[key]) for key in METERS}
 
         self.abr_enabled, self.abr_delay, self.abr_operated = True, 2.0, False
         self._abr_timer = {1: 0.0, 2: 0.0}
@@ -311,6 +335,9 @@ class Model:
         self.f_slow = OU(rng, 0.012, 90)
         self.f_fast = OU(rng, 0.003, 2)
         self.t_noise = OU(rng, 0.6, 1800)
+        self.aux_noise = OU(rng, 0.04, 120)
+        self.aux_p = {1: 0.0, 2: 0.0}
+        self.aux_q = {1: 0.0, 2: 0.0}
         self.frequency = 50.0
         self.ambient = ambient_base(self.clock)
         self.battery = 232.0
@@ -365,13 +392,25 @@ class Model:
             self._on_setpoint_changed(path, value)
         return None
 
-    def setpoints(self) -> dict[str, object]:
-        return {t.path: self.values[t.path] for t in TAGS if t.access != CMD and t.writable and t.persist}
+    def state(self) -> dict[str, object]:
+        """Сохраняемое состояние: уставки и показания счётчиков (как энергонезависимая память)."""
+        data: dict[str, object] = {t.path: self.values[t.path] for t in TAGS if t.access == WRITE and t.persist}
+        for key, m in self.meters.items():
+            data[f"Meter.{key}.Aplus"] = round(m.a, 3)
+            data[f"Meter.{key}.Rplus"] = round(m.r, 3)
+        return data
 
-    def load_setpoints(self, data: dict[str, object]) -> None:
+    def load_state(self, data: dict[str, object]) -> None:
         for path, value in data.items():
             tag = TAGS_BY_PATH.get(path)
-            if tag is not None and tag.access != CMD and tag.writable and tag.persist:
+            if tag is None:
+                continue
+            if path.startswith("Meter."):
+                if isinstance(value, (int, float)) and not isinstance(value, bool) \
+                        and math.isfinite(value) and value >= 0:
+                    _, key, kind = path.split(".")
+                    setattr(self.meters[key], "a" if kind == "Aplus" else "r", float(value))
+            elif tag.access == WRITE and tag.persist:
                 if self.write(path, value) is not None:
                     self.values[path] = tag.default
         self.events.clear()
@@ -397,6 +436,7 @@ class Model:
                 self._event(SEV_INFO, f"{sw.title}: {'включен' if sw.closed else 'отключен'}")
 
         self._solve(dt)
+        self._metering(dt * self.time_scale)
         self._protection(dt)
         self._abr(dt)
         for tr in self.trafos.values():
@@ -550,10 +590,15 @@ class Model:
             f.P, f.Q = f.demand(t, self.sec_u[s], dt)
             sec_p[s] += f.P
             sec_q[s] += f.Q
+        # Собственные нужды: при потере одной секции вся нагрузка переходит на ТСН другой (АВР 0,4 кВ)
+        self.aux_noise.step(dt)
+        live = [s for s in (1, 2) if src[s] is not None]
+        aux_p, aux_q = self._aux_load()
         for s in (1, 2):
-            if src[s] is not None:
-                sec_p[s] += self.AUX_P
-                sec_q[s] += self.AUX_Q
+            self.aux_p[s] = aux_p / len(live) if s in live else 0.0
+            self.aux_q[s] = aux_q / len(live) if s in live else 0.0
+            sec_p[s] += self.aux_p[s]
+            sec_q[s] += self.aux_q[s]
 
         # Режим трансформаторов
         for n, tr in self.trafos.items():
@@ -599,6 +644,26 @@ class Model:
             if f.energized and not f.sim_fault:
                 u = self.sec_u[f.section]
                 f.I = math.hypot(f.P, f.Q) / (SQRT3 * u) * 1000 if u > 0 else 0.0
+
+    def _aux_load(self) -> tuple[float, float]:
+        """Собственные нужды ПС, МВт / Мвар: защиты и связь, заряд ЩПТ, освещение, обогрев, обдув Т1/Т2."""
+        h = self.clock.hour + self.clock.minute / 60
+        light = 0.004 if h < 7 or h >= 19 else 0.0
+        heating = 0.0012 * max(0.0, 10.0 - self.ambient)  # обогрев ЗРУ, шкафов и приводов
+        fans = 0.004 * sum(tr.fans for tr in self.trafos.values())
+        p = (0.016 + light + heating + fans) * (1 + self.aux_noise.x)
+        return p, 0.45 * p + 0.003
+
+    def _metering(self, dt_sim: float) -> None:
+        """Счётчики интегрируют мощность в модельном времени."""
+        hours = dt_sim / 3600
+        for n, tr in self.trafos.items():
+            self.meters[f"T{n}"].add(tr.P, tr.Q, hours)
+            self.meters[f"In{n}"].add(tr.P_lv, tr.Q_lv, hours)
+        for tag, f in self.feeders.items():
+            self.meters[tag].add(f.P, f.Q, hours)
+        for s in (1, 2):
+            self.meters[f"Aux{s}"].add(self.aux_p[s], self.aux_q[s], hours)
 
     def _protection(self, dt: float) -> None:
         for f in self.feeders.values():
@@ -795,3 +860,6 @@ class Model:
             v[f"{tag}.P"] = round(f.P, 3)
             v[f"{tag}.Q"] = round(f.Q, 3)
             v[f"{tag}.I"] = round(f.I, 1)
+        for key, m in self.meters.items():
+            v[f"Meter.{key}.Aplus"] = round(m.a, 2)
+            v[f"Meter.{key}.Rplus"] = round(m.r, 2)

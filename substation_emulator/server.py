@@ -7,6 +7,8 @@ import dataclasses
 import json
 import logging
 import os
+import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -16,7 +18,7 @@ from asyncua.crypto.permission_rules import User, UserRole
 from asyncua.server.address_space import AttributeService
 
 from .model import Model
-from .tags import FEEDERS, LINES, SECTIONS, TAGS, TAGS_BY_PATH, TRANSFORMERS, Tag
+from .tags import FEEDERS, LINES, METERS, SECTIONS, TAGS, TAGS_BY_PATH, TRANSFORMERS, Tag
 
 log = logging.getLogger("substation")
 
@@ -47,6 +49,8 @@ FOLDERS.update({f"VL{n}": t for n, t in LINES.items()})
 FOLDERS.update({f"T{n}": t for n, t in TRANSFORMERS.items()})
 FOLDERS.update({f"Sec{n}": t for n, t in SECTIONS.items()})
 FOLDERS.update({tag: spec[0] for tag, spec in FEEDERS.items()})
+FOLDERS["Meter"] = "Счётчики электроэнергии (АИИС КУЭ)"
+FOLDERS.update({f"Meter.{key}": f"Счётчик: {place}" for key, place in METERS.items()})
 
 
 class _QuietSessionFaults(logging.Filter):
@@ -104,11 +108,16 @@ class _ValidatingAttributeService(AttributeService):
 
 class SubstationServer:
     def __init__(self, model: Model, host: str = "0.0.0.0", port: int = 4840, tick: float = 0.1,
-                 setpoints_file: str | None = "setpoints.json"):
+                 setpoints_file: str | None = "setpoints.json", state_save_period: float = 10.0):
         self.model = model
         self.endpoint = f"opc.tcp://{host}:{port}/substation/"
         self.tick = tick
+        # В файле хранятся уставки и показания счётчиков
         self.setpoints_file = Path(setpoints_file) if setpoints_file else None
+        self.state_save_period = state_save_period
+        self._last_save = time.monotonic()
+        self._save_lock = threading.Lock()
+        self._state_loaded = False  # не сохранять, пока не прочитан файл, — иначе затрём показания счётчиков
         self.server = Server()
         self.ns = 0
         self._nodes: dict[str, ua.NodeId] = {}
@@ -129,10 +138,11 @@ class SubstationServer:
     async def init(self) -> None:
         if self.setpoints_file and self.setpoints_file.exists():
             try:
-                self.model.load_setpoints(json.loads(self.setpoints_file.read_text(encoding="utf-8")))
-                log.info("Уставки загружены из %s", self.setpoints_file)
+                self.model.load_state(json.loads(self.setpoints_file.read_text(encoding="utf-8")))
+                log.info("Уставки и показания счётчиков загружены из %s", self.setpoints_file)
             except (OSError, ValueError) as e:
                 log.warning("Не удалось прочитать %s: %s — используются уставки по умолчанию", self.setpoints_file, e)
+        self._state_loaded = True
 
         srv = self.server
         await srv.init()
@@ -155,7 +165,7 @@ class SubstationServer:
                 if key not in folders:
                     folders[key] = await parent.add_object(ua.NodeId(key, self.ns),
                                                            ua.QualifiedName(parts[i - 1], self.ns))
-                    await self._describe(folders[key], FOLDERS.get(parts[i - 1], parts[i - 1]))
+                    await self._describe(folders[key], FOLDERS.get(key, FOLDERS.get(parts[i - 1], parts[i - 1])))
                 parent = folders[key]
             await self._add_variable(parent, tag)
 
@@ -210,16 +220,23 @@ class SubstationServer:
             log.info("Клиент отключился: %s", self._clients[key])
         self._clients = active
 
-    def _save_setpoints(self) -> None:
-        if not (self.setpoints_file and self.model.setpoints_dirty):
+    def save_state(self, force: bool = False) -> None:
+        """Сохранить уставки (сразу после изменения) и показания счётчиков (раз в state_save_period).
+        Может вызываться из другого потока — при закрытии окна консоли на Windows."""
+        if not (self.setpoints_file and self._state_loaded):
             return
-        self.model.setpoints_dirty = False
-        tmp = self.setpoints_file.with_suffix(".tmp")
-        try:
-            tmp.write_text(json.dumps(self.model.setpoints(), ensure_ascii=False, indent=2), encoding="utf-8")
-            os.replace(tmp, self.setpoints_file)
-        except OSError as e:
-            log.warning("Не удалось сохранить уставки в %s: %s", self.setpoints_file, e)
+        due = time.monotonic() - self._last_save >= self.state_save_period
+        if not (force or due or self.model.setpoints_dirty):
+            return
+        with self._save_lock:
+            self.model.setpoints_dirty = False
+            self._last_save = time.monotonic()
+            tmp = self.setpoints_file.with_suffix(".tmp")
+            try:
+                tmp.write_text(json.dumps(self.model.state(), ensure_ascii=False, indent=2), encoding="utf-8")
+                os.replace(tmp, self.setpoints_file)
+            except OSError as e:
+                log.warning("Не удалось сохранить состояние в %s: %s", self.setpoints_file, e)
 
     async def run(self) -> None:
         await self.init()
@@ -234,7 +251,7 @@ class SubstationServer:
                 self.model.step(min(now - last, 1.0))
                 last = now
                 await self._publish()
-                self._save_setpoints()
+                self.save_state()
                 if now - last_clients >= 1.0:
                     last_clients = now
                     self._log_clients()
