@@ -34,10 +34,16 @@ jobs:
       - name: Проверка exe через OPC UA клиент
         shell: pwsh
         run: |
-          $p = Start-Process -FilePath dist\SubstationEmulator.exe -ArgumentList "--no-persist","--port","4841" -PassThru -NoNewWindow
+          # С файлом состояния — как при обычном запуске (включается сохранение и обработчик закрытия окна)
+          $state = Join-Path $env:RUNNER_TEMP "smoke_state.json"
+          $p = Start-Process -FilePath dist\SubstationEmulator.exe -ArgumentList "--port","4841","--setpoints",$state -PassThru -NoNewWindow
           python tools/smoke_test.py opc.tcp://127.0.0.1:4841/substation/
           $code = $LASTEXITCODE
+          Start-Sleep 11  # период сохранения показаний — 10 с
           Stop-Process -Id $p.Id -Force
+          if ($code -eq 0 -and -not (Select-String -Path $state -Pattern "Meter.T1.Aplus" -Quiet)) {
+            Write-Host "FAIL: показания счётчиков не сохранены в $state"; $code = 1
+          }
           exit $code
 
       - name: Архив
