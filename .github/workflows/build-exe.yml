@@ -46,6 +46,21 @@ jobs:
           }
           exit $code
 
+      - name: Сборка exe эмулятора кондиционера и тестового клиента
+        run: |
+          pyinstaller --noconfirm --onefile --name ACEmulator --paths . packaging/ac_entry.py
+          pyinstaller --noconfirm --onefile --name ACTestClient --paths tools --collect-submodules pymodbus packaging/ac_client_entry.py
+
+      - name: Проверка ACEmulator.exe тестовым клиентом
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath dist\ACEmulator.exe -ArgumentList "--port","5020","--time-scale","60","--no-faults" -PassThru -NoNewWindow
+          Start-Sleep 3
+          dist\ACTestClient.exe --port 5020 --settle 30
+          $code = $LASTEXITCODE
+          Stop-Process -Id $p.Id -Force
+          exit $code
+
       - name: Архив
         shell: pwsh
         run: |
@@ -53,10 +68,22 @@ jobs:
           Copy-Item dist\SubstationEmulator.exe, README.md, tags.csv release\
           Compress-Archive -Path release\* -DestinationPath SubstationEmulator-win64.zip
 
+      - name: Архив эмулятора кондиционера
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory ac_release | Out-Null
+          Copy-Item dist\ACEmulator.exe, dist\ACTestClient.exe, ac_emulator\README.md ac_release\
+          Compress-Archive -Path ac_release\* -DestinationPath ACEmulator-win64.zip
+
       - uses: actions/upload-artifact@v4
         with:
           name: SubstationEmulator-win64
           path: release/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ACEmulator-win64
+          path: ac_release/
 
       - name: Публикация в Releases
         if: github.ref_name == github.event.repository.default_branch
@@ -70,3 +97,9 @@ jobs:
             --target "$GITHUB_SHA" --latest \
             --title "Эмулятор ПС 110/10 кВ $TAG" \
             --notes "Скачайте **SubstationEmulator.exe** и запустите двойным щелчком. Сервер: \`opc.tcp://<IP>:4840/substation/\` (Security None, анонимно). Архив zip дополнительно содержит README и перечень тегов tags.csv. Сборка из коммита $GITHUB_SHA."
+          AC_TAG="ac-v$(python -c 'import ac_emulator as a; print(a.__version__)')"
+          gh release delete "$AC_TAG" --cleanup-tag --yes || true
+          gh release create "$AC_TAG" dist/ACEmulator.exe dist/ACTestClient.exe ACEmulator-win64.zip \
+            --target "$GITHUB_SHA" --latest=false \
+            --title "Эмулятор кондиционера Modbus TCP $AC_TAG" \
+            --notes "Скачайте **ACEmulator.exe** и запустите двойным щелчком: Modbus TCP сервер на порту 502 (другой порт: \`ACEmulator.exe --port 5020\`). **ACTestClient.exe** проверяет его: включает, меняет уставку, читает температуру и вентилятор, вызывает и сбрасывает аварию. Карта регистров — в README.md внутри zip. Сборка из коммита $GITHUB_SHA."
