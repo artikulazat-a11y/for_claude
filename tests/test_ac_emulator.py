@@ -11,7 +11,6 @@ from ac_emulator.model import (
 )
 from ac_emulator.server import ACServer
 
-PORT = 50211
 START = datetime(2026, 9, 28, 12, 0)
 
 
@@ -65,10 +64,15 @@ def test_random_fault_at_most_once_per_day_and_reset():
 @pytest.fixture
 async def client():
     model = ACModel(seed=1, start=START, faults_enabled=False, time_scale=60)
-    srv = ACServer(model, host="127.0.0.1", port=PORT, tick=0.05)
+    # Порт выбирает ОС: на Windows фиксированный порт может попасть в зарезервированный диапазон
+    srv = ACServer(model, host="127.0.0.1", port=0, tick=0.05)
     task = asyncio.create_task(srv.run())
-    await asyncio.wait_for(srv.ready.wait(), 5)
-    c = AsyncModbusTcpClient("127.0.0.1", port=PORT)
+    ready = asyncio.create_task(srv.ready.wait())
+    await asyncio.wait({task, ready}, timeout=5, return_when=asyncio.FIRST_COMPLETED)
+    if task.done():
+        task.result()  # сервер не запустился — показать настоящую ошибку
+    assert srv.ready.is_set()
+    c = AsyncModbusTcpClient("127.0.0.1", port=srv.port)
     await c.connect()
     yield c
     c.close()

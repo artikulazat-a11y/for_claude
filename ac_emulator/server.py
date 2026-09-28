@@ -131,6 +131,7 @@ class ACServer:
 
     async def run(self) -> None:
         server = await asyncio.start_server(self._handle, self.host, self.port)
+        self.port = server.sockets[0].getsockname()[1]  # при port=0 ОС выбирает свободный порт
         log.info("Modbus TCP сервер слушает %s:%d (Unit ID любой)", self.host, self.port)
         self.ready.set()
         loop = asyncio.get_running_loop()
