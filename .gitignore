@@ -8,3 +8,4 @@ setpoints.json
 build/
 dist/
 *.spec
+ac_state.json

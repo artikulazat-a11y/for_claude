@@ -31,6 +31,9 @@ jobs:
       - name: Сборка exe
         run: pyinstaller --noconfirm --onefile --name SubstationEmulator --collect-submodules asyncua --paths . packaging/entry.py
 
+      - name: Сборка exe эмулятора кондиционеров
+        run: pyinstaller --noconfirm --onefile --name AirConditionerEmulator --paths . packaging/ac_entry.py
+
       - name: Проверка exe через OPC UA клиент
         shell: pwsh
         run: |
@@ -46,17 +49,39 @@ jobs:
           }
           exit $code
 
+      - name: Проверка exe кондиционеров через Modbus TCP клиент
+        shell: pwsh
+        run: |
+          $state = Join-Path $env:RUNNER_TEMP "ac_state.json"
+          $p = Start-Process -FilePath dist\AirConditionerEmulator.exe -ArgumentList "--state",$state -PassThru -NoNewWindow
+          python tools/ac_smoke_test.py 127.0.0.1 601 50
+          $code = $LASTEXITCODE
+          Start-Sleep 11  # период сохранения счётчиков — 10 с
+          Stop-Process -Id $p.Id -Force
+          if ($code -eq 0 -and -not (Select-String -Path $state -Pattern "NextRandomAlarm" -Quiet)) {
+            Write-Host "FAIL: состояние кондиционеров не сохранено в $state"; $code = 1
+          }
+          exit $code
+
       - name: Архив
         shell: pwsh
         run: |
           New-Item -ItemType Directory release | Out-Null
           Copy-Item dist\SubstationEmulator.exe, README.md, tags.csv release\
           Compress-Archive -Path release\* -DestinationPath SubstationEmulator-win64.zip
+          New-Item -ItemType Directory release-ac | Out-Null
+          Copy-Item dist\AirConditionerEmulator.exe, README_AC.md, ac_registers.csv release-ac\
+          Compress-Archive -Path release-ac\* -DestinationPath AirConditionerEmulator-win64.zip
 
       - uses: actions/upload-artifact@v4
         with:
           name: SubstationEmulator-win64
           path: release/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AirConditionerEmulator-win64
+          path: release-ac/
 
       - name: Публикация в Releases
         if: github.ref_name == github.event.repository.default_branch
@@ -67,6 +92,7 @@ jobs:
           TAG="v$(python -c 'import substation_emulator as s; print(s.__version__)')"
           gh release delete "$TAG" --cleanup-tag --yes || true
           gh release create "$TAG" dist/SubstationEmulator.exe SubstationEmulator-win64.zip \
+            dist/AirConditionerEmulator.exe AirConditionerEmulator-win64.zip \
             --target "$GITHUB_SHA" --latest \
-            --title "Эмулятор ПС 110/10 кВ $TAG" \
-            --notes "Скачайте **SubstationEmulator.exe** и запустите двойным щелчком. Сервер: \`opc.tcp://<IP>:4840/substation/\` (Security None, анонимно). Архив zip дополнительно содержит README и перечень тегов tags.csv. Сборка из коммита $GITHUB_SHA."
+            --title "Эмуляторы ПС 110/10 кВ и кондиционеров $TAG" \
+            --notes "**SubstationEmulator.exe** — подстанция 110/10 кВ, OPC UA: \`opc.tcp://<IP>:4840/substation/\` (Security None, анонимно). **AirConditionerEmulator.exe** — 50 кондиционеров, Modbus TCP: кондиционер №1 на порту 601, №2 на 602, … №50 на 650. Запускаются двойным щелчком. Архивы zip дополнительно содержат описание и перечень тегов/регистров для импорта в SCADA. Сборка из коммита $GITHUB_SHA."
