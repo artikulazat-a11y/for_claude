@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ПВУ-1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Макет: пульт диспетчера — живая мнемосхема во всю ширину, под ней щиты управления, как на чертеже */
+:root {
+  color-scheme: dark;
+  --bg: #0b1117;
+  --panel: #111921;
+  --panel-2: #16212b;
+  --line: #223140;
+  --grid: #1d2a37;
+  --fg: #dae4ed;
+  --fg-dim: #8494a5;
+  --fg-faint: #536578;
+  --duct: #172230;
+  --duct-edge: #3b4d60;
+  --equip: #1c2835;
+  --equip-edge: #5d7186;
+  --supply: #45cfc0;
+  --extract: #d9a36d;
+  --hot: #ff6b56;
+  --cold: #5b9cff;
+  --soil: #a0703f;
+  --ok: #45c98b;
+  --warn: #f2c14e;
+  --alarm: #ff4f62;
+  --shadow: rgb(0 0 0 / .45);
+
+  --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --font-ui: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-data: "JetBrains Mono", "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #e8edf1; --panel: #f9fbfc; --panel-2: #eff3f6; --line: #d0d9e1; --grid: #d3dce4;
+    --fg: #13202b; --fg-dim: #56697b; --fg-faint: #8d9dac;
+    --duct: #dde5ec; --duct-edge: #97a9ba; --equip: #f4f7f9; --equip-edge: #6f8599;
+    --supply: #0c968a; --extract: #b0672b; --hot: #dc3f2a; --cold: #2767d6; --soil: #8b5a2b;
+    --ok: #13925a; --warn: #b27c00; --alarm: #d61f38; --shadow: rgb(20 32 43 / .18);
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #e8edf1; --panel: #f9fbfc; --panel-2: #eff3f6; --line: #d0d9e1; --grid: #d3dce4;
+  --fg: #13202b; --fg-dim: #56697b; --fg-faint: #8d9dac;
+  --duct: #dde5ec; --duct-edge: #97a9ba; --equip: #f4f7f9; --equip-edge: #6f8599;
+  --supply: #0c968a; --extract: #b0672b; --hot: #dc3f2a; --cold: #2767d6; --soil: #8b5a2b;
+  --ok: #13925a; --warn: #b27c00; --alarm: #d61f38; --shadow: rgb(20 32 43 / .18);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 15px/1.45 var(--font-ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--supply); outline-offset: 2px; }
+
+.app { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 18px 40px; display: grid; gap: 18px; }
+
+/* ---------- Верхняя панель ---------- */
+.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
+.ident { display: grid; gap: 4px; margin-right: auto; }
+.eyebrow { font: 500 12px/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--fg-dim); }
+.ident h1 { margin: 0; font: 700 30px/1 var(--font-display); letter-spacing: .01em; }
+
+.status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--line); background: var(--panel); font: 500 13px/1 var(--font-ui); letter-spacing: .03em; white-space: nowrap; }
+.pill .led { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-faint); flex: none; }
+.pill[data-s="ok"] .led { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ok) 22%, transparent); }
+.pill[data-s="warn"] .led { background: var(--warn); box-shadow: 0 0 0 3px color-mix(in oklab, var(--warn) 22%, transparent); }
+.pill[data-s="warn"] { color: var(--warn); }
+.pill[data-s="alarm"] { color: var(--alarm); border-color: color-mix(in oklab, var(--alarm) 55%, var(--line)); background: color-mix(in oklab, var(--alarm) 10%, var(--panel)); }
+.pill[data-s="alarm"] .led { background: var(--alarm); animation: blink 1s steps(2, start) infinite; }
+.pill-sm { height: 26px; font-size: 12px; }
+.clock { font: 500 14px/1 var(--font-data); font-variant-numeric: tabular-nums; color: var(--fg-dim); padding-left: 4px; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.btn { height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); font: 600 13px/1 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: border-color .15s, background .15s; }
+.btn:hover { border-color: var(--fg-faint); }
+.btn-start { color: var(--ok); }
+.btn-stop { color: var(--alarm); }
+.btn-ghost { background: none; color: var(--fg-dim); text-transform: none; letter-spacing: .02em; font-weight: 500; }
+.sp { display: inline-flex; align-items: center; height: 34px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); overflow: hidden; }
+.sp button { width: 32px; height: 100%; border: 0; background: none; font: 500 17px/1 var(--font-data); cursor: pointer; }
+.sp button:hover { background: var(--line); }
+.sp output { min-width: 108px; text-align: center; font: 500 13px/1 var(--font-data); font-variant-numeric: tabular-nums; }
+.sp output small { color: var(--fg-dim); font: 500 11px var(--font-ui); letter-spacing: .06em; text-transform: uppercase; margin-right: 6px; }
+.switch { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 4px 0 6px; font: 500 13px/1 var(--font-ui); color: var(--fg-dim); cursor: pointer; }
+.switch input { appearance: none; -webkit-appearance: none; margin: 0; width: 34px; height: 20px; border-radius: 10px; background: var(--line); position: relative; cursor: pointer; transition: background .2s; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--fg-dim); transition: transform .2s, background .2s; }
+.switch input:checked { background: var(--warn); }
+.switch input:checked::after { transform: translateX(14px); background: var(--bg); }
+
+/* ---------- Мнемосхема ---------- */
+.scheme { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.scheme-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+h2 { margin: 0; font: 600 13px/1.2 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--fg-dim); text-wrap: balance; }
+.scheme-head h2 { margin-right: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--fg-dim); }
+.legend li { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { width: 22px; height: 3px; border-radius: 2px; }
+.lg-sa i { background: var(--supply); }
+.lg-ea i { background: var(--extract); }
+.lg-hot i { background: var(--hot); }
+.lg-cold i { background: var(--cold); }
+.scheme-scroll { overflow-x: auto; }
+#scheme { display: block; width: 100%; min-width: 900px; height: auto; }
+
+#scheme text { font-family: var(--font-ui); }
+.grid-dot { fill: var(--grid); }
+.duct { fill: var(--duct); stroke: var(--duct-edge); stroke-width: 1.5; }
+.louver { fill: var(--equip); stroke: var(--equip-edge); stroke-width: 1.5; }
+.louver-l { stroke: var(--equip-edge); stroke-width: 1.5; }
+.end-arrow { fill: none; stroke: var(--fg-dim); stroke-width: 1.5; stroke-linejoin: round; }
+.duct-lbl { font-size: 11px; font-weight: 600; letter-spacing: .14em; fill: var(--fg-dim); }
+.eq-lbl { font-size: 10px; font-weight: 600; letter-spacing: .16em; fill: var(--fg-faint); text-anchor: middle; }
+.out-temp { font-family: var(--font-data) !important; font-size: 15px; font-weight: 500; fill: var(--fg); }
+
+.flow { fill: none; stroke-linecap: round; }
+.flow-sa { stroke: var(--supply); }
+.flow-sa.warm { stroke: color-mix(in oklab, var(--hot) calc(var(--heat) * 80%), var(--supply)); }
+.flow-ea { stroke: var(--extract); }
+.lane-a { stroke-width: 2.4; stroke-dasharray: 2 17; }
+.lane-b { stroke-width: 1.6; stroke-dasharray: 12 26; opacity: .75; }
+
+.section { fill: none; stroke: var(--equip-edge); stroke-width: 1.5; }
+.blade { stroke: var(--fg-dim); stroke-width: 4; stroke-linecap: round; }
+.pivot { fill: var(--panel); stroke: var(--fg-dim); stroke-width: 1.5; }
+.eq[data-s="ok"] .blade { stroke: var(--fg); }
+.eq[data-s="ok"] .pivot { stroke: var(--fg); }
+
+.filter-body { fill: var(--equip); stroke: var(--equip-edge); stroke-width: 1.5; }
+.pleats { fill: none; stroke: var(--fg-faint); stroke: color-mix(in oklab, var(--soil) calc(var(--dirt) * 100%), var(--fg-faint)); stroke-width: 1.5; stroke-linejoin: round; }
+.eq[data-s="warn"] .filter-body { stroke: var(--warn); stroke-width: 2; }
+
+.heater-body { fill: var(--equip); fill: color-mix(in oklab, var(--hot) calc(var(--heat) * 24%), var(--equip)); stroke: var(--equip-edge); stroke-width: 1.5; }
+.coil { fill: none; stroke: var(--equip-edge); stroke: color-mix(in oklab, var(--hot) calc(var(--heat) * 100%), var(--equip-edge)); stroke-width: 3; stroke-linejoin: round; }
+.coil-flow { fill: none; stroke: url(#g-coil); stroke-width: 1.4; stroke-dasharray: 4 8; stroke-linejoin: round; }
+
+.fan-housing { fill: var(--equip); stroke: var(--equip-edge); stroke-width: 2; }
+.pump-body { fill: var(--equip); stroke: var(--equip-edge); stroke-width: 2; }
+.impeller path { fill: var(--fg-faint); transition: fill .4s; }
+.eq[data-s="ok"] .impeller path { fill: var(--fg); }
+.eq[data-s="ok"] .fan-housing, .eq[data-s="ok"] .pump-body { stroke: var(--ok); }
+.hub { fill: var(--panel); stroke: var(--fg-dim); stroke-width: 1.5; }
+
+.pipe { fill: none; stroke-width: 8; }
+.pipe.hot { stroke: color-mix(in oklab, var(--hot) 28%, var(--duct)); }
+.pipe.cold { stroke: color-mix(in oklab, var(--cold) 28%, var(--duct)); }
+.pflow { fill: none; stroke-width: 3; stroke-dasharray: 6 10; stroke-linecap: round; }
+.pflow.hot { stroke: var(--hot); }
+.pflow.cold { stroke: var(--cold); }
+.pipe-end.hot { fill: var(--hot); }
+.pipe-end.cold { fill: var(--cold); }
+.pipe-lbl { font-size: 11px; font-weight: 500; letter-spacing: .06em; fill: var(--fg-dim); }
+.valve { fill: var(--equip); stroke: var(--fg); stroke-width: 1.5; stroke-linejoin: round; }
+.cv-bar { stroke: var(--fg); stroke-width: 1.5; }
+
+.room-body { fill: color-mix(in oklab, var(--supply) 5%, var(--panel)); stroke: var(--duct-edge); stroke-width: 1.5; }
+.room-code { font-family: var(--font-display) !important; font-size: 18px; font-weight: 700; fill: var(--fg); }
+.room-name { font-size: 11px; font-weight: 500; letter-spacing: .04em; fill: var(--fg-dim); }
+.room-temp { font-family: var(--font-display) !important; font-size: 34px; font-weight: 700; fill: var(--fg); text-anchor: middle; }
+.room-temp .u { font-family: var(--font-ui); font-size: 15px; font-weight: 500; fill: var(--fg-dim); }
+.room-sp { font-family: var(--font-data) !important; font-size: 12px; fill: var(--fg-dim); text-anchor: middle; }
+.room-note { font-size: 10.5px; letter-spacing: .04em; fill: var(--fg-faint); text-anchor: middle; }
+.scale-bar { fill: url(#g-comfort); }
+.st-cold { stop-color: var(--cold); }
+.st-mid { stop-color: var(--supply); }
+.st-hot { stop-color: var(--hot); }
+.tick { stroke: var(--fg-faint); stroke-width: 1; }
+.tick-lbl { font-family: var(--font-data) !important; font-size: 10px; fill: var(--fg-dim); text-anchor: middle; }
+.mark-pv { fill: var(--fg); }
+.mark-sp { stroke: var(--fg); stroke-width: 2; stroke-dasharray: 2 2; }
+.diffuser, .grille { fill: none; stroke: var(--fg-dim); stroke-width: 1.5; stroke-linecap: round; }
+
+.stem { fill: none; stroke: var(--fg-faint); stroke-width: 1.2; }
+.shaft-o { fill: none; stroke: var(--fg-dim); stroke-width: 5; }
+.shaft-i { fill: none; stroke: var(--panel); stroke-width: 2; }
+.bub-c { fill: var(--panel); stroke: var(--fg-dim); stroke-width: 1.4; transition: stroke .3s; }
+.bub-l { stroke: var(--fg-dim); stroke-width: 1; }
+.bub-t { font-size: 10.5px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
+.bub-b { font-size: 10px; font-weight: 500; fill: var(--fg-dim); text-anchor: middle; }
+.bub[data-s="ok"] .bub-c { stroke: var(--ok); }
+.bub[data-s="warn"] .bub-c { stroke: var(--warn); }
+.bub[data-s="alarm"] .bub-c { stroke: var(--alarm); fill: color-mix(in oklab, var(--alarm) 16%, var(--panel)); animation: pulse 1.2s ease-in-out infinite; }
+.chip rect { fill: var(--panel-2); stroke: var(--line); stroke-width: 1; }
+.chip text { font-family: var(--font-data) !important; font-size: 11px; font-weight: 500; fill: var(--fg); text-anchor: middle; font-variant-numeric: tabular-nums; }
+.chip[data-s="ok"] text { fill: var(--ok); }
+.chip[data-s="off"] text { fill: var(--fg-dim); }
+.chip[data-s="warn"] rect { stroke: var(--warn); }
+.chip[data-s="warn"] text { fill: var(--warn); }
+.chip[data-s="alarm"] rect { fill: color-mix(in oklab, var(--alarm) 18%, var(--panel-2)); stroke: var(--alarm); animation: pulse 1.2s ease-in-out infinite; }
+.chip[data-s="alarm"] text { fill: var(--alarm); }
+.eq[data-s="alarm"] :is(.fan-housing, .filter-body, .heater-body, .room-body) { stroke: var(--alarm); stroke-width: 2.5; }
+
+#scheme [data-dev] { cursor: help; }
+#scheme [data-dev]:focus { outline: none; }
+#scheme :is(.hl, [data-dev]:hover, [data-dev]:focus-visible) .bub-c,
+#scheme :is(.hl, [data-dev]:hover) :is(.fan-housing, .section, .filter-body, .heater-body, .pump-body, .valve, .room-body) { stroke: var(--supply); stroke-width: 2.4; }
+
+/* ---------- Щиты ---------- */
+.console { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.stack { display: grid; gap: 18px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; min-width: 0; }
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 12px; padding: 14px 16px 10px; }
+.note { font-size: 12px; color: var(--fg-faint); }
+.link { border: 0; background: none; padding: 0; font-size: 12px; color: var(--fg-dim); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.link:hover { color: var(--fg); }
+
+.rows { list-style: none; margin: 0; padding: 0 8px 8px; }
+.row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto 10px; align-items: center; gap: 12px; padding: 8px; border-top: 1px solid var(--line); transition: background .2s; }
+.row:hover { background: var(--panel-2); }
+.row[data-s="alarm"] { background: color-mix(in oklab, var(--alarm) 11%, transparent); }
+.isa { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--fg-dim); display: grid; grid-template-rows: 1fr 1fr; justify-items: center; font: 600 10px/1 var(--font-ui); letter-spacing: .02em; }
+.isa::after { content: ""; position: absolute; left: 2px; right: 2px; top: 50%; border-top: 1px solid var(--fg-dim); }
+.isa b { align-self: end; padding-bottom: 3px; font-weight: 600; }
+.isa i { align-self: start; padding-top: 3px; font-style: normal; font-weight: 500; color: var(--fg-dim); }
+.rname { min-width: 0; line-height: 1.25; }
+.rname small { display: block; margin-top: 2px; font-size: 12px; color: var(--fg-faint); }
+.rval { font: 500 13px/1 var(--font-data); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.row .led { width: 9px; height: 9px; border-radius: 50%; background: var(--fg-faint); }
+.row[data-s="ok"] .led { background: var(--ok); }
+.row[data-s="ok"] .rval { color: var(--ok); }
+.row[data-s="warn"] .led { background: var(--warn); }
+.row[data-s="warn"] .rval { color: var(--warn); }
+.row[data-s="alarm"] .led { background: var(--alarm); animation: blink 1s steps(2, start) infinite; }
+.row[data-s="alarm"] .rval { color: var(--alarm); }
+.row[data-s="alarm"] .isa, .row[data-s="alarm"] .isa::after { border-color: var(--alarm); }
+
+.log { list-style: none; margin: 0; padding: 0 16px 12px; max-height: 372px; overflow-y: auto; }
+.log li { display: grid; grid-template-columns: 62px 8px minmax(0, 1fr); align-items: baseline; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.35; }
+.log time { font: 500 12px/1 var(--font-data); font-variant-numeric: tabular-nums; color: var(--fg-dim); }
+.log .dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; background: var(--fg-faint); }
+.log [data-s="ok"] .dot { background: var(--ok); }
+.log [data-s="warn"] .dot { background: var(--warn); }
+.log [data-s="alarm"] .dot { background: var(--alarm); }
+.log [data-s="alarm"] span:last-child { color: var(--alarm); }
+.log .empty { display: block; padding: 14px 0; color: var(--fg-faint); }
+
+/* ---------- Привязка ---------- */
+.bind-body { display: grid; gap: 16px; padding: 0 16px 16px; }
+.bind-body p { margin: 0; max-width: 72ch; color: var(--fg-dim); }
+.bind-body p code, td code { font: 500 12.5px var(--font-data); color: var(--supply); }
+.api { margin: 0; padding: 14px 16px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; font: 400 12.5px/1.65 var(--font-data); tab-size: 2; }
+.api .c { color: var(--fg-faint); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+table.vars { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 13.5px; }
+.vars th { position: sticky; top: 0; text-align: left; font: 600 11px/1.2 var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--fg-dim); background: var(--panel-2); padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.vars td { padding: 7px 12px; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+.vars tr:last-child td { border-bottom: 0; }
+.vars td.dev { font: 500 12px var(--font-data); color: var(--fg-dim); white-space: nowrap; }
+.vars td.typ { font-size: 12.5px; color: var(--fg-dim); white-space: nowrap; }
+.vars td.num { font: 500 12.5px var(--font-data); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* ---------- Подсказка ---------- */
+.tip { position: fixed; z-index: 20; left: 0; top: 0; max-width: 320px; padding: 10px 12px 11px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 28px var(--shadow); pointer-events: none; font-size: 13px; }
+.tip h3 { margin: 0; font: 600 14px/1.25 var(--font-ui); }
+.tip .tag { margin-top: 2px; font: 500 11.5px var(--font-data); color: var(--fg-dim); }
+.tip dl { display: grid; grid-template-columns: auto auto; gap: 4px 16px; margin: 9px 0 0; padding-top: 8px; border-top: 1px solid var(--line); }
+.tip dt { font: 500 12px var(--font-data); color: var(--supply); }
+.tip dd { margin: 0; text-align: right; font: 500 12px var(--font-data); font-variant-numeric: tabular-nums; }
+
+@keyframes blink { to { opacity: .25; } }
+@keyframes pulse { 50% { opacity: .45; } }
+
+@media (max-width: 960px) {
+  .console { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .app { padding-inline: 16px; gap: 14px; }
+  .ident h1 { font-size: 24px; }
+  .status { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="ident">
+      <span class="eyebrow">Приточно-вытяжная установка</span>
+      <h1>ПВУ-1</h1>
+    </div>
+    <div class="status">
+      <span class="pill" id="st-unit" data-s="off"><span class="led"></span><span class="pv">Стоп</span></span>
+      <span class="pill" id="st-mode" data-s="norm"><span class="led"></span><span class="pv">Дистанционное</span></span>
+      <span class="pill" id="st-alarms" data-s="ok" aria-live="polite"><span class="led"></span><span class="pv">Аварий нет</span></span>
+      <time class="clock" id="clock">--:--:--</time>
+    </div>
+    <div class="controls">
+      <button class="btn btn-start" id="btn-start" type="button">Пуск</button>
+      <button class="btn btn-stop" id="btn-stop" type="button">Стоп</button>
+      <div class="sp" role="group" aria-label="Уставка температуры в помещении">
+        <button id="sp-dn" type="button" aria-label="Уменьшить уставку на 0,5 °C">−</button>
+        <output id="sp-val"><small>Уставка</small>21.0 °C</output>
+        <button id="sp-up" type="button" aria-label="Увеличить уставку на 0,5 °C">+</button>
+      </div>
+      <label class="switch" for="demo"><input type="checkbox" id="demo" checked> Демо</label>
+      <button class="btn btn-ghost" id="theme" type="button">Светлая тема</button>
+    </div>
+  </header>
+
+  <section class="scheme" aria-labelledby="scheme-title">
+    <div class="scheme-head">
+      <h2 id="scheme-title">Мнемосхема</h2>
+      <ul class="legend">
+        <li class="lg-sa"><i></i>Приточный воздух</li>
+        <li class="lg-ea"><i></i>Вытяжной воздух</li>
+        <li class="lg-hot"><i></i>Прямая вода</li>
+        <li class="lg-cold"><i></i>Обратная вода</li>
+      </ul>
+      <span class="pill pill-sm" id="st-src" data-s="warn"><span class="led"></span><span class="pv">Демо-данные</span></span>
+    </div>
+    <div class="scheme-scroll">
+      <svg id="scheme" viewBox="0 0 1240 640" role="group" aria-label="Мнемосхема приточно-вытяжной установки ПВУ-1" style="--heat:0; --dirt:0">
+        <defs>
+          <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle class="grid-dot" cx="10" cy="10" r="1"></circle>
+          </pattern>
+          <linearGradient id="g-comfort" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" class="st-cold"></stop>
+            <stop offset=".5" class="st-mid"></stop>
+            <stop offset="1" class="st-hot"></stop>
+          </linearGradient>
+          <linearGradient id="g-coil" gradientUnits="userSpaceOnUse" x1="495" y1="0" x2="545" y2="0">
+            <stop offset="0" class="st-hot"></stop>
+            <stop offset="1" class="st-cold"></stop>
+          </linearGradient>
+          <clipPath id="clip-ea"><rect x="58" y="94" width="990" height="32"></rect></clipPath>
+          <clipPath id="clip-sa"><rect x="58" y="314" width="990" height="32"></rect></clipPath>
+        </defs>
+
+        <rect width="1240" height="640" fill="url(#dots)"></rect>
+
+        <!-- Обслуживаемое помещение (ОП) -->
+        <g id="eq-room" class="eq" data-dev="room">
+          <rect class="room-body" x="1040" y="30" width="182" height="346" rx="12"></rect>
+          <text class="room-code" x="1066" y="68">ОП</text>
+          <text class="room-name" x="1066" y="88">Обслуживаемое</text>
+          <text class="room-name" x="1066" y="102">помещение</text>
+          <text class="room-temp" x="1131" y="200"><tspan id="room-temp">—</tspan><tspan class="u" dx="4">°C</tspan></text>
+          <text class="room-sp" id="room-sp" x="1131" y="224">уставка —</text>
+          <rect class="scale-bar" x="1061" y="258" width="140" height="6" rx="3"></rect>
+          <g id="room-scale"></g>
+          <line id="mark-sp" class="mark-sp" x1="0" x2="0" y1="252" y2="270"></line>
+          <path id="mark-pv" class="mark-pv" d="M0 255 l-5 -8 h10 z"></path>
+          <text class="room-note" x="1131" y="302">TC 1а · шкала 20–30 °C</text>
+          <path class="grille" d="M1052 98 V122 M1058 98 V122"></path>
+          <path class="diffuser" d="M1050 322 L1074 306 M1050 330 H1080 M1050 338 L1074 354"></path>
+        </g>
+
+        <!-- Воздуховоды -->
+        <rect class="duct" x="58" y="92" width="990" height="36"></rect>
+        <rect class="duct" x="58" y="312" width="990" height="36"></rect>
+
+        <!-- Поток воздуха -->
+        <g id="flow-ea" clip-path="url(#clip-ea)">
+          <path class="flow flow-ea lane-a" data-k="0.9" d="M1048 101 H58"></path>
+          <path class="flow flow-ea lane-b" data-k="1.25" d="M1048 110 H58"></path>
+          <path class="flow flow-ea lane-a" data-k="0.8" d="M1048 119 H58"></path>
+        </g>
+        <g id="flow-sa" clip-path="url(#clip-sa)">
+          <path class="flow flow-sa lane-a" data-k="0.9" d="M58 321 H478"></path>
+          <path class="flow flow-sa lane-b" data-k="1.25" d="M58 330 H478"></path>
+          <path class="flow flow-sa lane-a" data-k="0.8" d="M58 339 H478"></path>
+          <path class="flow flow-sa warm lane-a" data-k="0.9" d="M562 321 H1048"></path>
+          <path class="flow flow-sa warm lane-b" data-k="1.25" d="M562 330 H1048"></path>
+          <path class="flow flow-sa warm lane-a" data-k="0.8" d="M562 339 H1048"></path>
+        </g>
+
+        <!-- Выброс и воздухозабор -->
+        <rect class="louver" x="44" y="88" width="14" height="44" rx="2"></rect>
+        <path class="louver-l" d="M46 96 L56 102 M46 106 L56 112 M46 116 L56 122"></path>
+        <path class="end-arrow" d="M38 100 L22 110 L38 120 Z"></path>
+        <rect class="louver" x="44" y="308" width="14" height="44" rx="2"></rect>
+        <path class="louver-l" d="M46 316 L56 322 M46 326 L56 332 M46 336 L56 342"></path>
+        <path class="end-arrow" d="M22 320 L38 330 L22 340 Z"></path>
+
+        <g data-dev="oa">
+          <text class="out-temp" id="out-temp" x="22" y="282"></text>
+          <text class="duct-lbl" x="22" y="300">НАРУЖНЫЙ ВОЗДУХ</text>
+        </g>
+        <text class="duct-lbl" x="22" y="80">ВЫБРОС</text>
+        <text class="duct-lbl" x="1032" y="80" text-anchor="end">ВЫТЯЖНОЙ ВОЗДУХ</text>
+        <text class="duct-lbl" x="1032" y="300" text-anchor="end">ПРИТОЧНЫЙ ВОЗДУХ</text>
+
+        <!-- Трубопроводы узла обвязки калорифера -->
+        <path class="pipe hot" d="M495 612 V362"></path>
+        <path class="pipe cold" d="M545 362 V612"></path>
+        <path class="pipe cold" d="M545 520 H509"></path>
+        <path id="w-src" class="pflow hot" d="M495 612 V535"></path>
+        <path id="w-sup" class="pflow hot" d="M495 505 V362"></path>
+        <path id="w-ret" class="pflow cold" d="M545 362 V520"></path>
+        <path id="w-out" class="pflow cold" d="M545 520 V612"></path>
+        <path id="w-byp" class="pflow cold" d="M545 520 H511"></path>
+        <path class="pipe-end hot" d="M487 628 L495 615 L503 628 Z"></path>
+        <path class="pipe-end cold" d="M537 615 L553 615 L545 628 Z"></path>
+        <text class="pipe-lbl" x="478" y="626" text-anchor="end">Т1 подача</text>
+        <text class="pipe-lbl" x="562" y="626">Т2 обратка</text>
+
+        <!-- Заслонка выброса M 6и -->
+        <g id="eq-dmp-ea" class="eq" data-dev="dmp-ea">
+          <rect class="section" x="156" y="86" width="28" height="48" rx="3"></rect>
+          <line id="blade-ea" class="blade" x1="170" y1="96" x2="170" y2="124"></line>
+          <circle class="pivot" cx="170" cy="110" r="3.2"></circle>
+        </g>
+
+        <!-- Вытяжной вентилятор M 6к -->
+        <g id="eq-fan-ea" class="eq" data-dev="fan-ea">
+          <circle class="fan-housing" cx="600" cy="110" r="31"></circle>
+          <g transform="translate(600 110)"><g id="imp-ea" class="impeller"></g></g>
+          <circle class="hub" cx="600" cy="110" r="5"></circle>
+          <text class="eq-lbl" x="600" y="158">ВЫТЯЖНОЙ</text>
+        </g>
+
+        <!-- Заслонка наружного воздуха M 6з -->
+        <g id="eq-dmp-oa" class="eq" data-dev="dmp-oa">
+          <rect class="section" x="126" y="306" width="28" height="48" rx="3"></rect>
+          <line id="blade-oa" class="blade" x1="140" y1="316" x2="140" y2="344"></line>
+          <circle class="pivot" cx="140" cy="330" r="3.2"></circle>
+        </g>
+
+        <!-- Фильтр -->
+        <g id="eq-flt" class="eq" data-dev="flt">
+          <text class="eq-lbl" x="270" y="296">ФИЛЬТР</text>
+          <rect class="filter-body" x="252" y="304" width="36" height="52" rx="3"></rect>
+          <polyline class="pleats" points="258,308 282,312 258,316 282,320 258,324 282,328 258,332 282,336 258,340 282,344 258,348 282,352"></polyline>
+        </g>
+
+        <!-- Калорифер водяной -->
+        <g id="eq-htr" class="eq" data-dev="htr">
+          <text class="eq-lbl" x="520" y="290">КАЛОРИФЕР</text>
+          <rect class="heater-body" x="478" y="298" width="84" height="64" rx="4"></rect>
+          <path class="coil" d="M495 362 V306 H505 V354 H515 V306 H525 V354 H535 V306 H545 V362"></path>
+          <path id="w-coil" class="coil-flow" d="M495 362 V306 H505 V354 H515 V306 H525 V354 H535 V306 H545 V362"></path>
+        </g>
+
+        <!-- Приточный вентилятор M 6л -->
+        <g id="eq-fan-sa" class="eq" data-dev="fan-sa">
+          <circle class="fan-housing" cx="820" cy="330" r="31"></circle>
+          <g transform="translate(820 330)"><g id="imp-sa" class="impeller"></g></g>
+          <circle class="hub" cx="820" cy="330" r="5"></circle>
+          <text class="eq-lbl" x="820" y="382">ПРИТОЧНЫЙ</text>
+        </g>
+
+        <!-- Циркуляционный насос M 2е -->
+        <g id="eq-pump" class="eq" data-dev="pump">
+          <circle class="pump-body" cx="495" cy="420" r="15"></circle>
+          <g transform="translate(495 420)"><g id="imp-pump" class="impeller"></g></g>
+        </g>
+
+        <!-- Трёхходовой клапан M 1в и обратный клапан -->
+        <g id="eq-valve" class="eq" data-dev="valve">
+          <path class="valve" d="M486 505 H504 L495 520 Z M486 535 H504 L495 520 Z M510 511 V529 L495 520 Z"></path>
+          <path class="valve" d="M533 513 V527 L522 520 Z"></path>
+          <line class="cv-bar" x1="521" y1="513" x2="521" y2="527"></line>
+        </g>
+
+        <!-- Приборы: строятся скриптом из списка DEVICES -->
+        <g id="devs"></g>
+      </svg>
+    </div>
+  </section>
+
+  <div class="console">
+    <section class="panel" aria-labelledby="central-title">
+      <div class="panel-head"><h2 id="central-title">Щит центрального управления</h2><span class="note">порядок как на чертеже</span></div>
+      <ul class="rows" id="rows-central"></ul>
+    </section>
+    <div class="stack">
+      <section class="panel" aria-labelledby="local-title">
+        <div class="panel-head"><h2 id="local-title">Щит местного управления</h2></div>
+        <ul class="rows" id="rows-local"></ul>
+      </section>
+      <section class="panel" aria-labelledby="log-title">
+        <div class="panel-head"><h2 id="log-title">Журнал событий</h2><button class="link" id="log-clear" type="button">Очистить</button></div>
+        <ol class="log" id="log"></ol>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel" aria-labelledby="bind-title">
+    <div class="panel-head"><h2 id="bind-title">Привязка переменных</h2><span class="note">window.PVU</span></div>
+    <div class="bind-body">
+      <p>Значения передаются через объект <code>window.PVU</code> или через <code>postMessage</code>, если страница встроена во фрейм. Первое же внешнее значение выключает демо-режим. Наведите курсор на прибор на схеме, чтобы увидеть его переменные.</p>
+<pre class="api"><code><span class="c">// одно значение</span>
+PVU.set('room_temp', 21.4);
+
+<span class="c">// несколько значений за раз</span>
+PVU.set({ fan_sa_run: true, fan_sa_speed: 80, valve_pos: 45 });
+
+<span class="c">// из родительского окна, если страница открыта во фрейме</span>
+frame.contentWindow.postMessage({ type: 'pvu:set', values: { room_temp: 21.4 } }, '*');
+
+<span class="c">// команды оператора: start, stop, setpoint (приходят и родителю как 'pvu:command')</span>
+window.addEventListener('pvu:command', e =&gt; console.log(e.detail));
+
+<span class="c">// выключить демо до загрузки страницы</span>
+window.PVU_CONFIG = { demo: false };</code></pre>
+      <div class="table-wrap">
+        <table class="vars">
+          <thead><tr><th>Переменная</th><th>Прибор</th><th>Назначение</th><th>Тип</th><th>Сейчас</th></tr></thead>
+          <tbody id="vars-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+  const NS = 'http://www.w3.org/2000/svg';
+  const $ = (s, r = document) => r.querySelector(s);
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const approach = (cur, tgt, step) => cur < tgt ? Math.min(tgt, cur + step) : Math.max(tgt, cur - step);
+  const svg = $('#scheme');
+
+  /* ================= Настройки ================= */
+  const CONFIG = Object.assign({
+    demo: true,          // запускать демо при загрузке
+    autoStopDemo: true,  // первое внешнее PVU.set выключает демо
+    filterClean: 0.5,    // мбар — чистый фильтр (PD 3а)
+    filterAlarm: 2.5,    // мбар — порог засорения (PDA 3б)
+    staleAfter: 10,      // с — после этого данные считаются устаревшими
+  }, window.PVU_CONFIG || {});
+
+  /* ================= Переменные ================= */
+  // t: num — число, bool — да/нет, alarm — авария (true = активна)
+  const VARS = {
+    room_temp:         { t: 'num', dec: 1, unit: '°C',   dev: 'TC 1а → TICAS 1б', name: 'Температура в помещении' },
+    room_sp:           { t: 'num', dec: 1, unit: '°C',   dev: 'TICAS 1б',         name: 'Уставка температуры в помещении', init: 21 },
+    outdoor_temp:      { t: 'num', dec: 1, unit: '°C',   dev: '—',                name: 'Наружный воздух (необязательно, датчика нет на чертеже)' },
+    damper_oa_pos:     { t: 'num', dec: 0, unit: '%',    dev: 'M 6з → GS3 6б',    name: 'Заслонка наружного воздуха, положение' },
+    damper_ea_pos:     { t: 'num', dec: 0, unit: '%',    dev: 'M 6и → GS5 6в',    name: 'Заслонка выброса, положение' },
+    filter_dp:         { t: 'num', dec: 2, unit: 'мбар', dev: 'PD 3а → PDA 3б',   name: 'Перепад давления на фильтре' },
+    fan_ea_run:        { t: 'bool', on: 'работа', off: 'стоп', dev: 'M 6к → GCS 6г', name: 'Вытяжной вентилятор в работе' },
+    fan_ea_speed:      { t: 'num', dec: 0, unit: '%',    dev: 'M 6к',             name: 'Вытяжной вентилятор, скорость (необязательно)' },
+    fan_ea_dp:         { t: 'num', dec: 2, unit: 'мбар', dev: 'PD 4а → PDA 4б',   name: 'Перепад на вытяжном вентиляторе' },
+    fan_sa_run:        { t: 'bool', on: 'работа', off: 'стоп', dev: 'M 6л → GCS 6д', name: 'Приточный вентилятор в работе' },
+    fan_sa_speed:      { t: 'num', dec: 0, unit: '%',    dev: 'M 6л',             name: 'Приточный вентилятор, скорость (необязательно)' },
+    fan_sa_dp:         { t: 'num', dec: 2, unit: 'мбар', dev: 'PD 5а → PDA 5б',   name: 'Перепад на приточном вентиляторе' },
+    valve_pos:         { t: 'num', dec: 0, unit: '%',    dev: 'M 1в ← TICAS 1б',  name: 'Клапан калорифера, положение' },
+    pump_run:          { t: 'bool', on: 'работа', off: 'стоп', dev: 'M 2е → GCS 2д', name: 'Циркуляционный насос в работе' },
+    water_supply_temp: { t: 'num', dec: 1, unit: '°C',   dev: 'TI',               name: 'Прямая вода, температура (местный прибор)' },
+    water_return_temp: { t: 'num', dec: 1, unit: '°C',   dev: 'TE 2а → TIS 2г',   name: 'Обратная вода, температура' },
+    water_pressure:    { t: 'num', dec: 2, unit: 'бар',  dev: 'PI',               name: 'Давление воды (местный прибор)' },
+    air_heater_temp:   { t: 'num', dec: 1, unit: '°C',   dev: 'TE 2б → TS 2в',    name: 'Воздух за калорифером, температура' },
+    unit_run:          { t: 'bool', on: 'работа', off: 'стоп', dev: 'GCS 6а',     name: 'Установка в работе' },
+    key_ea_local:      { t: 'bool', on: 'местное', off: 'дистанц.', dev: 'GKS 6е', name: 'Ключ вытяжного вентилятора в положении «Местное»' },
+    key_sa_local:      { t: 'bool', on: 'местное', off: 'дистанц.', dev: 'GKS 6ж', name: 'Ключ приточного вентилятора в положении «Местное»' },
+    alarm_filter:      { t: 'alarm', dev: 'PDA 3б',   name: 'Засорение фильтра' },
+    alarm_fan_ea:      { t: 'alarm', dev: 'PDA 4б',   name: 'Нет перепада на вытяжном вентиляторе' },
+    alarm_fan_sa:      { t: 'alarm', dev: 'PDA 5б',   name: 'Нет перепада на приточном вентиляторе' },
+    alarm_freeze:      { t: 'alarm', dev: 'TS 2в',    name: 'Угроза замерзания калорифера' },
+    alarm_water:       { t: 'alarm', dev: 'TIS 2г',   name: 'Низкая температура обратной воды' },
+    alarm_room:        { t: 'alarm', dev: 'TICAS 1б', name: 'Температура в помещении вне допуска' },
+  };
+  const TYPE_LABEL = { num: 'число', bool: 'да / нет', alarm: 'авария' };
+
+  const S = {};
+  for (const [k, d] of Object.entries(VARS)) S[k] = 'init' in d ? d.init : d.t === 'num' ? null : false;
+
+  /* ================= Форматирование ================= */
+  const num = (v, dec) => {
+    if (v == null || !Number.isFinite(+v)) return '—';
+    let s = (+v).toFixed(dec);
+    if (/^-0(\.0+)?$/.test(s)) s = s.slice(1);
+    return s.replace('-', '−');
+  };
+  const pct = v => v == null ? '—' : `${num(v, 0)} %`;
+  function fmt(k) {
+    const d = VARS[k], v = S[k];
+    if (d.t === 'num') return v == null ? '—' : `${num(v, d.dec)} ${d.unit}`;
+    if (d.t === 'alarm') return v ? 'авария' : 'норма';
+    return v ? d.on : d.off;
+  }
+  const lower = s => s[0].toLowerCase() + s.slice(1);
+
+  /* ================= Приборы на схеме ================= */
+  function fanView(x) {
+    const run = S[`fan_${x}_run`], sp = S[`fan_${x}_speed`], al = S[`alarm_fan_${x}`], loc = S[`key_${x}_local`];
+    const text = al ? 'АВАРИЯ' : run ? (sp == null ? 'РАБОТА' : `РАБОТА ${num(sp, 0)}%`) : 'СТОП';
+    const s = al ? 'alarm' : run ? 'ok' : 'off';
+    return { text: (loc ? 'М · ' : '') + text, s, b: al ? 'alarm' : loc ? 'warn' : s };
+  }
+  const DEVICES = [
+    { id: 'oa', name: 'Наружный воздух', tag: 'датчика на чертеже нет', vars: ['outdoor_temp'] },
+    { id: 'dmp-oa', name: 'Заслонка наружного воздуха', tag: 'M 6з → GS3 6б', loop: '2', vars: ['damper_oa_pos'],
+      bub: { x: 140, y: 410, t: 'M', b: '6з' }, chip: { side: 'b', w: 62 }, stem: 'M140 348 V393',
+      view: () => ({ text: pct(S.damper_oa_pos), s: S.damper_oa_pos > 5 ? 'ok' : 'off' }) },
+    { id: 'dmp-ea', name: 'Заслонка выброса', tag: 'M 6и → GS5 6в', loop: '3', vars: ['damper_ea_pos'],
+      bub: { x: 170, y: 180, t: 'M', b: '6и' }, chip: { side: 'b', w: 62 }, stem: 'M170 128 V163',
+      view: () => ({ text: pct(S.damper_ea_pos), s: S.damper_ea_pos > 5 ? 'ok' : 'off' }) },
+    { id: 'flt', name: 'Фильтр приточного воздуха', tag: 'PD 3а → PDA 3б', loop: '4', vars: ['filter_dp', 'alarm_filter'],
+      bub: { x: 270, y: 410, t: 'PD', b: '3а' }, chip: { side: 'b', w: 84 }, stem: 'M232 348 V410 H253 M308 348 V410 H287',
+      view: () => ({ text: fmt('filter_dp'), s: S.alarm_filter ? 'alarm' : S.filter_dp > CONFIG.filterAlarm * 0.8 ? 'warn' : 'norm' }) },
+    { id: 'fan-ea', name: 'Вытяжной вентилятор', tag: 'M 6к → GKS 6е → GCS 6г', loop: '5', vars: ['fan_ea_run', 'fan_ea_speed', 'key_ea_local'],
+      bub: { x: 600, y: 38, t: 'M', b: '6к' }, chip: { side: 'r', w: 104 }, shaft: 'M600 55 V79', view: () => fanView('ea') },
+    { id: 'pd-ea', name: 'Перепад на вытяжном вентиляторе', tag: 'PD 4а → PDA 4б', loop: '6', vars: ['fan_ea_dp', 'alarm_fan_ea'],
+      bub: { x: 600, y: 185, t: 'PD', b: '4а' }, chip: { side: 'b', w: 84 }, stem: 'M545 128 V185 H583 M655 128 V185 H617',
+      view: () => ({ text: fmt('fan_ea_dp'), s: S.alarm_fan_ea ? 'alarm' : 'norm' }) },
+    { id: 'fan-sa', name: 'Приточный вентилятор', tag: 'M 6л → GKS 6ж → GCS 6д', loop: '11', vars: ['fan_sa_run', 'fan_sa_speed', 'key_sa_local'],
+      bub: { x: 820, y: 258, t: 'M', b: '6л' }, chip: { side: 'r', w: 104 }, shaft: 'M820 275 V299', view: () => fanView('sa') },
+    { id: 'pd-sa', name: 'Перепад на приточном вентиляторе', tag: 'PD 5а → PDA 5б', loop: '12', vars: ['fan_sa_dp', 'alarm_fan_sa'],
+      bub: { x: 820, y: 410, t: 'PD', b: '5а' }, chip: { side: 'b', w: 84 }, stem: 'M765 348 V410 H803 M875 348 V410 H837',
+      view: () => ({ text: fmt('fan_sa_dp'), s: S.alarm_fan_sa ? 'alarm' : 'norm' }) },
+    { id: 'te-air', name: 'Воздух за калорифером', tag: 'TE 2б → TS 2в, уставка 5–10 °C', loop: '10', vars: ['air_heater_temp', 'alarm_freeze'],
+      bub: { x: 650, y: 266, t: 'TE', b: '2б' }, chip: { side: 'r', w: 74 }, stem: 'M650 312 V283',
+      view: () => ({ text: fmt('air_heater_temp'), s: S.alarm_freeze ? 'alarm' : 'norm' }) },
+    { id: 'htr', name: 'Калорифер водяной', tag: 'узел обвязки: M 1в, M 2е, TE 2а', vars: ['valve_pos', 'water_supply_temp', 'water_return_temp', 'air_heater_temp'],
+      view: () => ({ s: S.alarm_freeze || S.alarm_water ? 'alarm' : 'norm' }) },
+    { id: 'te-ret', name: 'Обратная вода', tag: 'TE 2а → TIS 2г, шкала 20–70 °C', loop: '9', vars: ['water_return_temp', 'alarm_water'],
+      bub: { x: 615, y: 410, t: 'TE', b: '2а' }, chip: { side: 'r', w: 74 }, stem: 'M545 410 H598',
+      view: () => ({ text: fmt('water_return_temp'), s: S.alarm_water ? 'alarm' : 'norm' }) },
+    { id: 'pump', name: 'Циркуляционный насос', tag: 'M 2е → GCS 2д', loop: '7', vars: ['pump_run'],
+      bub: { x: 425, y: 420, t: 'M', b: '2е' }, chip: { side: 'l', w: 70 }, shaft: 'M442 420 H480',
+      view: () => ({ text: S.pump_run ? 'РАБОТА' : 'СТОП', s: S.pump_run ? 'ok' : 'off' }) },
+    { id: 'ti', name: 'Термометр прямой воды', tag: 'TI · местный прибор', vars: ['water_supply_temp'],
+      bub: { x: 425, y: 470, t: 'TI' }, chip: { side: 'l', w: 70 }, stem: 'M442 470 H495',
+      view: () => ({ text: fmt('water_supply_temp'), s: 'norm' }) },
+    { id: 'valve', name: 'Трёхходовой клапан калорифера', tag: 'M 1в ← TICAS 1б', loop: '8', vars: ['valve_pos'],
+      bub: { x: 425, y: 520, t: 'M', b: '1в' }, chip: { side: 'l', w: 70 }, shaft: 'M442 520 H486',
+      view: () => ({ text: pct(S.valve_pos), s: 'norm' }) },
+    { id: 'pi', name: 'Манометр', tag: 'PI · местный прибор', vars: ['water_pressure'],
+      bub: { x: 425, y: 570, t: 'PI' }, chip: { side: 'l', w: 70 }, stem: 'M442 570 H495',
+      view: () => ({ text: fmt('water_pressure'), s: 'norm' }) },
+    { id: 'room', name: 'Обслуживаемое помещение', tag: 'TC 1а → TICAS 1б', loop: '1', vars: ['room_temp', 'room_sp', 'alarm_room'],
+      bub: { x: 1196, y: 62, t: 'TC', b: '1а' }, view: () => ({ s: S.alarm_room ? 'alarm' : 'norm' }) },
+  ];
+  const DEV = Object.fromEntries(DEVICES.map(d => [d.id, d]));
+
+  /* ================= Щиты управления (порядок как на чертеже) ================= */
+  const damperRow = k => ({
+    val: () => S[k] == null ? '—' : S[k] >= 95 ? 'открыта' : S[k] <= 5 ? 'закрыта' : `${num(S[k], 0)} %`,
+    st: () => S[k] > 5 ? 'ok' : 'off',
+  });
+  const runRow = (k, alarmKey) => ({
+    val: () => alarmKey && S[alarmKey] ? 'авария' : fmt(k),
+    st: () => alarmKey && S[alarmKey] ? 'alarm' : S[k] ? 'ok' : 'off',
+  });
+  const dpRow = (k, alarmKey) => ({ val: () => fmt(k), st: () => S[alarmKey] ? 'alarm' : 'norm' });
+  const CENTRAL = [
+    { isa: ['GS3', '6б'], name: 'Заслонка наружного воздуха', meta: 'контур 2 · M 6з', dev: 'dmp-oa', ...damperRow('damper_oa_pos') },
+    { isa: ['GS5', '6в'], name: 'Заслонка выброса', meta: 'контур 3 · M 6и', dev: 'dmp-ea', ...damperRow('damper_ea_pos') },
+    { isa: ['PDA', '3б'], name: 'Фильтр, перепад давления', meta: 'контур 4 · PD 3а · 0,5–5 мбар', dev: 'flt',
+      val: () => fmt('filter_dp'), st: () => S.alarm_filter ? 'alarm' : S.filter_dp > CONFIG.filterAlarm * 0.8 ? 'warn' : 'norm' },
+    { isa: ['GCS', '6г'], name: 'Вытяжной вентилятор', meta: 'контур 5 · M 6к', dev: 'fan-ea', ...runRow('fan_ea_run', 'alarm_fan_ea') },
+    { isa: ['GCS', '6д'], name: 'Приточный вентилятор', meta: 'контур 11 · M 6л', dev: 'fan-sa', ...runRow('fan_sa_run', 'alarm_fan_sa') },
+    { isa: ['PDA', '4б'], name: 'Перепад на вытяжном вентиляторе', meta: 'контур 6 · PD 4а · 0,5–5 мбар', dev: 'pd-ea', ...dpRow('fan_ea_dp', 'alarm_fan_ea') },
+    { isa: ['GCS', '2д'], name: 'Циркуляционный насос', meta: 'контур 7 · M 2е', dev: 'pump', ...runRow('pump_run') },
+    { isa: ['TICAS', '1б'], name: 'Температура в помещении', meta: 'контуры 1, 8 · TC 1а → M 1в', dev: 'room',
+      val: () => `${num(S.room_temp, 1)} / ${num(S.room_sp, 1)} °C`, st: () => S.alarm_room ? 'alarm' : 'norm' },
+    { isa: ['TIS', '2г'], name: 'Обратная вода', meta: 'контур 9 · TE 2а · 20–70 °C', dev: 'te-ret', ...dpRow('water_return_temp', 'alarm_water') },
+    { isa: ['TS', '2в'], name: 'Защита калорифера от замерзания', meta: 'контур 10 · TE 2б · 5–10 °C', dev: 'te-air', ...dpRow('air_heater_temp', 'alarm_freeze') },
+    { isa: ['GCS', '6а'], name: 'Пуск и блокировки установки', meta: 'сводный узел', dev: '', ...runRow('unit_run') },
+    { isa: ['PDA', '5б'], name: 'Перепад на приточном вентиляторе', meta: 'контур 12 · PD 5а · 0,5–5 мбар', dev: 'pd-sa', ...dpRow('fan_sa_dp', 'alarm_fan_sa') },
+  ];
+  const keyRow = k => ({ val: () => fmt(k), st: () => S[k] ? 'warn' : 'norm' });
+  const LOCAL = [
+    { isa: ['GKS', '6е'], name: 'Ключ вытяжного вентилятора', meta: 'контур 5 · к GCS 6г', dev: 'fan-ea', ...keyRow('key_ea_local') },
+    { isa: ['GKS', '6ж'], name: 'Ключ приточного вентилятора', meta: 'контур 11 · к GCS 6д', dev: 'fan-sa', ...keyRow('key_sa_local') },
+  ];
+
+  /* ================= Построение SVG ================= */
+  function el(tag, attrs, parent) {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.append(n);
+    return n;
+  }
+  function impeller(g, n, R) {
+    const d = `M${R * .2} ${-R * .08} C${R * .5} ${-R * .44} ${R * .86} ${-R * .38} ${R} ${-R * .12} C${R * .9} ${R * .14} ${R * .55} ${R * .24} ${R * .2} ${R * .12} Z`;
+    for (let i = 0; i < n; i++) el('path', { d, transform: `rotate(${i * 360 / n})` }, g);
+  }
+  impeller($('#imp-ea'), 5, 25);
+  impeller($('#imp-sa'), 5, 25);
+  impeller($('#imp-pump'), 4, 11);
+
+  const scale = $('#room-scale');
+  for (let t = 20; t <= 30; t++) {
+    const x = 1061 + (t - 20) * 14;
+    el('line', { class: 'tick', x1: x, x2: x, y1: 266, y2: t % 5 ? 269 : 273 }, scale);
+    if (t % 5 === 0) el('text', { class: 'tick-lbl', x, y: 286 }, scale).textContent = t;
+  }
+
+  const devLayer = $('#devs');
+  for (const d of DEVICES) {
+    d.eq = $(`#eq-${d.id}`);
+    if (!d.bub) continue;
+    const g = el('g', { 'data-dev': d.id, tabindex: 0, role: 'img', 'aria-label': `${d.name}, ${d.tag}` }, devLayer);
+    if (d.stem) el('path', { class: 'stem', d: d.stem }, g);
+    if (d.shaft) { el('path', { class: 'shaft-o', d: d.shaft }, g); el('path', { class: 'shaft-i', d: d.shaft }, g); }
+    const { x, y, t, b } = d.bub, r = 17;
+    const bg = el('g', { class: 'bub' }, g);
+    el('circle', { class: 'bub-c', cx: x, cy: y, r }, bg);
+    if (b) {
+      el('line', { class: 'bub-l', x1: x - r, x2: x + r, y1: y, y2: y }, bg);
+      el('text', { class: 'bub-t', x, y: y - 4.5 }, bg).textContent = t;
+      el('text', { class: 'bub-b', x, y: y + 12 }, bg).textContent = b;
+    } else {
+      el('text', { class: 'bub-t', x, y: y + 4 }, bg).textContent = t;
+    }
+    d.bubEl = bg;
+    if (d.chip) {
+      const { side, w } = d.chip;
+      let cx = x, cy = y;
+      if (side === 'r') cx = x + r + 8 + w / 2;
+      else if (side === 'l') cx = x - r - 8 - w / 2;
+      else cy = y + r + 17;
+      const cg = el('g', { class: 'chip' }, g);
+      el('rect', { x: cx - w / 2, y: cy - 10, width: w, height: 20, rx: 5 }, cg);
+      const tx = el('text', { x: cx, y: cy, dy: '0.36em' }, cg);
+      d.chipEl = { g: cg, t: tx };
+    }
+  }
+
+  /* ================= Щиты и таблица ================= */
+  function buildRows(list, host) {
+    host.innerHTML = list.map(r => `<li class="row" data-dev="${r.dev}"><span class="isa"><b>${r.isa[0]}</b><i>${r.isa[1]}</i></span><span class="rname">${r.name}<small>${r.meta}</small></span><span class="rval"></span><span class="led"></span></li>`).join('');
+    [...host.children].forEach((li, i) => { list[i].li = li; list[i].v = li.querySelector('.rval'); });
+  }
+  buildRows(CENTRAL, $('#rows-central'));
+  buildRows(LOCAL, $('#rows-local'));
+
+  const varsBody = $('#vars-body');
+  varsBody.innerHTML = Object.entries(VARS).map(([k, d]) =>
+    `<tr><td><code>${k}</code></td><td class="dev">${d.dev}</td><td>${d.name}</td><td class="typ">${TYPE_LABEL[d.t]}${d.unit ? `, ${d.unit}` : ''}</td><td class="num" data-k="${k}"></td></tr>`).join('');
+  const varCells = [...varsBody.querySelectorAll('[data-k]')];
+
+  /* ================= Журнал ================= */
+  const logEl = $('#log');
+  const LOG = [];
+  const hhmmss = d => d.toLocaleTimeString('ru-RU', { hour12: false });
+  function log(s, msg) {
+    LOG.unshift({ t: new Date(), s, msg });
+    if (LOG.length > 60) LOG.pop();
+    renderLog();
+  }
+  function renderLog() {
+    logEl.innerHTML = LOG.length
+      ? LOG.map(e => `<li data-s="${e.s}"><time>${hhmmss(e.t)}</time><span class="dot"></span><span>${e.msg}</span></li>`).join('')
+      : '<li class="empty">Событий пока нет</li>';
+  }
+  $('#log-clear').addEventListener('click', () => { LOG.length = 0; renderLog(); });
+
+  /* ================= Приём значений ================= */
+  const EDGES = {
+    unit_run: ['ok', 'Установка запущена', 'Установка остановлена'],
+    fan_ea_run: ['info', 'Вытяжной вентилятор: пуск', 'Вытяжной вентилятор: останов'],
+    fan_sa_run: ['info', 'Приточный вентилятор: пуск', 'Приточный вентилятор: останов'],
+    pump_run: ['info', 'Циркуляционный насос: пуск', 'Циркуляционный насос: останов'],
+    key_ea_local: ['warn', 'Ключ GKS 6е переведён в «Местное»', 'Ключ GKS 6е переведён в «Дистанционное»'],
+    key_sa_local: ['warn', 'Ключ GKS 6ж переведён в «Местное»', 'Ключ GKS 6ж переведён в «Дистанционное»'],
+  };
+  const unknown = new Set();
+  let lastExt = 0;
+  function toBool(v) {
+    if (typeof v === 'string') return !['', '0', 'false', 'off', 'нет'].includes(v.trim().toLowerCase());
+    return !!v;
+  }
+  function apply(values, src) {
+    for (const [k, raw] of Object.entries(values || {})) {
+      const d = VARS[k];
+      if (!d) {
+        if (!unknown.has(k)) { unknown.add(k); console.warn(`[PVU] неизвестная переменная: ${k}`); }
+        continue;
+      }
+      const prev = S[k];
+      let v;
+      if (d.t === 'num') { v = raw == null || raw === '' ? null : +raw; if (!Number.isFinite(v)) v = null; }
+      else v = toBool(raw);
+      S[k] = v;
+      if (d.t !== 'num' && prev !== v) {
+        if (d.t === 'alarm') log(v ? 'alarm' : 'ok', v ? `${d.name} (${d.dev})` : `Устранено: ${lower(d.name)} (${d.dev})`);
+        else if (EDGES[k]) log(v ? EDGES[k][0] : 'info', v ? EDGES[k][1] : EDGES[k][2]);
+      }
+    }
+    if (src === 'ext') lastExt = Date.now();
+    schedule();
+  }
+
+  /* ================= Отрисовка значений ================= */
+  let queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; render(); });
+  }
+  const setS = (node, s) => { if (node && node.getAttribute('data-s') !== s) node.setAttribute('data-s', s); };
+  function pill(id, s, text) { const p = $(id); setS(p, s); p.querySelector('.pv').textContent = text; }
+
+  function render() {
+    for (const d of DEVICES) {
+      if (!d.view) continue;
+      const v = d.view();
+      if (d.chipEl) { d.chipEl.t.textContent = v.text; setS(d.chipEl.g, v.s); }
+      if (d.bubEl) setS(d.bubEl, v.b || v.s);
+      if (d.eq) setS(d.eq, v.s);
+    }
+
+    // Нагрев калорифера и загрязнение фильтра управляют цветом через CSS-переменные
+    const wt = S.water_supply_temp == null ? 70 : S.water_supply_temp;
+    const heat = clamp((S.valve_pos || 0) / 100) * clamp((wt - 15) / 60) * (S.pump_run ? 1 : 0.35);
+    svg.style.setProperty('--heat', heat.toFixed(3));
+    const dirt = S.filter_dp == null ? 0 : clamp((S.filter_dp - CONFIG.filterClean) / (CONFIG.filterAlarm - CONFIG.filterClean));
+    svg.style.setProperty('--dirt', dirt.toFixed(3));
+
+    // Помещение
+    $('#room-temp').textContent = num(S.room_temp, 1);
+    $('#room-sp').textContent = `уставка ${num(S.room_sp, 1)} °C`;
+    const sx = t => 1061 + clamp((t - 20) / 10) * 140;
+    const pv = $('#mark-pv'), spm = $('#mark-sp');
+    pv.setAttribute('transform', `translate(${sx(S.room_temp ?? 20)} 0)`);
+    pv.style.opacity = S.room_temp == null ? 0 : 1;
+    spm.setAttribute('transform', `translate(${sx(S.room_sp ?? 20)} 0)`);
+    $('#out-temp').textContent = S.outdoor_temp == null ? '' : `${num(S.outdoor_temp, 1)} °C`;
+
+    // Шапка
+    const alarms = Object.keys(VARS).filter(k => VARS[k].t === 'alarm' && S[k]);
+    const local = S.key_ea_local || S.key_sa_local;
+    pill('#st-unit', S.unit_run ? 'ok' : 'off', S.unit_run ? 'Работа' : 'Стоп');
+    pill('#st-mode', local ? 'warn' : 'norm', local ? 'Местное управление' : 'Дистанционное');
+    pill('#st-alarms', alarms.length ? 'alarm' : 'ok', alarms.length ? `Аварий: ${alarms.length}` : 'Аварий нет');
+    $('#sp-val').innerHTML = `<small>Уставка</small>${num(S.room_sp, 1)} °C`;
+
+    // Щиты
+    for (const r of [...CENTRAL, ...LOCAL]) { r.v.textContent = r.val(); setS(r.li, r.st()); }
+
+    // Таблица переменных
+    for (const c of varCells) c.textContent = fmt(c.dataset.k);
+
+    if (tipDev) tip.innerHTML = tipHTML(tipDev);
+  }
+
+  function renderSource() {
+    if (demo.on) return pill('#st-src', 'warn', 'Демо-данные');
+    if (!lastExt) return pill('#st-src', 'norm', 'Ожидание данных');
+    const age = Math.round((Date.now() - lastExt) / 1000);
+    if (age > CONFIG.staleAfter) pill('#st-src', 'alarm', `Нет данных ${age} с`);
+    else pill('#st-src', 'ok', age < 2 ? 'Онлайн' : `Онлайн · ${age} с назад`);
+  }
+
+  /* ================= Анимация ================= */
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const A = { sa: 0, ea: 0, pump: 0, dOA: 0, dEA: 0, v: 0, angSA: 0, angEA: 0, angP: 0, offSA: 0, offEA: 0 };
+  const flowSA = $('#flow-sa'), flowEA = $('#flow-ea');
+  const lanesSA = [...flowSA.children].map(p => [p, +p.dataset.k]);
+  const lanesEA = [...flowEA.children].map(p => [p, +p.dataset.k]);
+  const impSA = $('#imp-sa'), impEA = $('#imp-ea'), impP = $('#imp-pump');
+  const bladeOA = $('#blade-oa'), bladeEA = $('#blade-ea');
+  const WATER = ['src', 'sup', 'ret', 'out', 'byp', 'coil'].map(id => ({ id, el: $(`#w-${id}`), off: 0 }));
+  let last = performance.now();
+
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    const still = reduce.matches;
+    const ease = (cur, tgt, tau) => still ? tgt : cur + (tgt - cur) * (1 - Math.exp(-dt / tau));
+    const target = (run, speed) => run ? (speed == null ? 1 : clamp(speed / 100)) : 0;
+
+    A.sa = ease(A.sa, target(S.fan_sa_run, S.fan_sa_speed), 1.4);
+    A.ea = ease(A.ea, target(S.fan_ea_run, S.fan_ea_speed), 1.4);
+    A.pump = ease(A.pump, S.pump_run ? 1 : 0, 0.7);
+    A.dOA = ease(A.dOA, clamp((S.damper_oa_pos || 0) / 100), 0.35);
+    A.dEA = ease(A.dEA, clamp((S.damper_ea_pos || 0) / 100), 0.35);
+    A.v = ease(A.v, clamp((S.valve_pos || 0) / 100), 0.4);
+
+    bladeOA.setAttribute('transform', `rotate(${(A.dOA * 88).toFixed(1)} 140 330)`);
+    bladeEA.setAttribute('transform', `rotate(${(-A.dEA * 88).toFixed(1)} 170 110)`);
+
+    const qSA = A.sa * Math.min(1, A.dOA * 1.6 + 0.04);
+    const qEA = A.ea * Math.min(1, A.dEA * 1.6 + 0.04);
+    flowSA.style.opacity = (0.14 + 0.86 * clamp(qSA * 1.5)).toFixed(3);
+    flowEA.style.opacity = (0.14 + 0.86 * clamp(qEA * 1.5)).toFixed(3);
+
+    const speeds = { src: A.pump * A.v, sup: A.pump, ret: A.pump, out: A.pump * A.v, byp: A.pump * (1 - A.v), coil: A.pump };
+    for (const w of WATER) w.el.style.opacity = (0.18 + 0.82 * clamp(speeds[w.id] * 3)).toFixed(3);
+
+    if (!still) {
+      A.angSA = (A.angSA + A.sa * 560 * dt) % 360;
+      A.angEA = (A.angEA - A.ea * 560 * dt) % 360;
+      A.angP = (A.angP + A.pump * 720 * dt) % 360;
+      impSA.setAttribute('transform', `rotate(${A.angSA.toFixed(2)})`);
+      impEA.setAttribute('transform', `rotate(${A.angEA.toFixed(2)})`);
+      impP.setAttribute('transform', `rotate(${A.angP.toFixed(2)})`);
+
+      A.offSA += qSA * 95 * dt;
+      A.offEA += qEA * 95 * dt;
+      for (const [p, k] of lanesSA) p.style.strokeDashoffset = (-A.offSA * k).toFixed(2);
+      for (const [p, k] of lanesEA) p.style.strokeDashoffset = (-A.offEA * k).toFixed(2);
+      for (const w of WATER) {
+        w.off += speeds[w.id] * (w.id === 'coil' ? 22 : 42) * dt;
+        w.el.style.strokeDashoffset = (-w.off).toFixed(2);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ================= Подсказка по приборам ================= */
+  const tip = $('#tip');
+  let tipDev = null, tipPinned = false;
+  function tipHTML(d) {
+    const rows = d.vars.map(k => `<dt>${k}</dt><dd>${fmt(k)}</dd>`).join('');
+    return `<h3>${d.name}</h3><div class="tag">${d.tag}${d.loop ? ` · контур ${d.loop}` : ''}</div><dl>${rows}</dl>`;
+  }
+  function placeTip(x, y) {
+    const r = tip.getBoundingClientRect();
+    let left = x + 16, top = y + 16;
+    if (left + r.width > innerWidth - 8) left = x - r.width - 16;
+    if (top + r.height > innerHeight - 8) top = y - r.height - 16;
+    tip.style.left = `${Math.max(8, left)}px`;
+    tip.style.top = `${Math.max(8, top)}px`;
+  }
+  function showTip(id, x, y) {
+    const d = DEV[id];
+    if (!d) return;
+    if (tipDev !== d) { tipDev = d; tip.innerHTML = tipHTML(d); }
+    tip.hidden = false;
+    placeTip(x, y);
+  }
+  function hideTip() { tipDev = null; tip.hidden = true; }
+  const devOf = e => e.target.closest && e.target.closest('[data-dev]');
+  svg.addEventListener('pointermove', e => {
+    if (tipPinned) return;
+    const g = devOf(e);
+    if (g) showTip(g.getAttribute('data-dev'), e.clientX, e.clientY); else hideTip();
+  });
+  svg.addEventListener('pointerleave', () => { if (!tipPinned) hideTip(); });
+  svg.addEventListener('click', e => {
+    const g = devOf(e);
+    if (!g) return;
+    e.stopPropagation();
+    tipPinned = true;
+    tipDev = null;
+    showTip(g.getAttribute('data-dev'), e.clientX, e.clientY);
+  });
+  document.addEventListener('click', () => { if (tipPinned) { tipPinned = false; hideTip(); } });
+  svg.addEventListener('focusin', e => {
+    const g = devOf(e);
+    if (!g) return;
+    const r = g.getBoundingClientRect();
+    showTip(g.getAttribute('data-dev'), r.right - 8, r.top);
+  });
+  svg.addEventListener('focusout', () => { if (!tipPinned) hideTip(); });
+  addEventListener('scroll', () => { if (!tipPinned) hideTip(); }, { passive: true });
+
+  // Подсветка прибора на схеме при наведении на строку щита
+  function highlight(id) {
+    svg.querySelectorAll('.hl').forEach(n => n.classList.remove('hl'));
+    if (id) svg.querySelectorAll(`[data-dev="${id}"]`).forEach(n => n.classList.add('hl'));
+  }
+  for (const host of [$('#rows-central'), $('#rows-local')]) {
+    host.addEventListener('pointerover', e => { const li = e.target.closest('.row'); highlight(li && li.dataset.dev); });
+    host.addEventListener('pointerleave', () => highlight(null));
+  }
+
+  /* ================= Команды оператора ================= */
+  function command(cmd, value) {
+    const detail = { command: cmd, value };
+    dispatchEvent(new CustomEvent('pvu:command', { detail }));
+    if (typeof PVU.onCommand === 'function') { try { PVU.onCommand(cmd, value); } catch (err) { console.error(err); } }
+    if (window.parent !== window) { try { window.parent.postMessage({ type: 'pvu:command', ...detail }, '*'); } catch (_) {} }
+    if (cmd === 'start') { log('info', 'Команда: пуск установки'); if (demo.on) demo.run = true; }
+    if (cmd === 'stop') { log('info', 'Команда: останов установки'); if (demo.on) demo.run = false; }
+    if (cmd === 'setpoint') apply({ room_sp: value });
+  }
+  $('#btn-start').addEventListener('click', () => command('start'));
+  $('#btn-stop').addEventListener('click', () => command('stop'));
+  const stepSp = d => command('setpoint', Math.round(clamp((S.room_sp ?? 21) + d, 16, 28) * 10) / 10);
+  $('#sp-dn').addEventListener('click', () => stepSp(-0.5));
+  $('#sp-up').addEventListener('click', () => stepSp(0.5));
+
+  /* ================= Тема ================= */
+  const themeBtn = $('#theme');
+  const currentTheme = () => document.documentElement.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  const themeLabel = () => { themeBtn.textContent = currentTheme() === 'dark' ? 'Светлая тема' : 'Тёмная тема'; };
+  themeBtn.addEventListener('click', () => { document.documentElement.setAttribute('data-theme', currentTheme() === 'dark' ? 'light' : 'dark'); themeLabel(); });
+  matchMedia('(prefers-color-scheme: light)').addEventListener('change', themeLabel);
+  new MutationObserver(themeLabel).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  themeLabel();
+
+  /* ================= Демо-режим (имитация процесса) ================= */
+  const demo = { on: false, timer: 0 };
+  function demoReset() {
+    Object.assign(demo, {
+      t: 0, bootAt: 1.2, run: false, room: 19.4, aH: 14, ret: 36, v: 0.3, integ: 0,
+      dOA: 0, dEA: 0, sa: 0, ea: 0, eaOnAt: -1, filter: 1.35, filterAlarmAt: -1,
+    });
+  }
+  function demoStep(dt) {
+    const d = demo;
+    d.t += dt;
+    if (d.bootAt > 0 && d.t >= d.bootAt) { d.bootAt = -1; d.run = true; }
+    const out = -8 + 1.5 * Math.sin(d.t / 70);
+    const sup = 75 + 1.5 * Math.sin(d.t / 23);
+    const sp = S.room_sp ?? 21;
+
+    // заслонки открываются, затем пускается вытяжной, через 3 с — приточный
+    d.dOA = approach(d.dOA, d.run ? 100 : 0, 25 * dt);
+    d.dEA = approach(d.dEA, d.run ? 100 : 0, 25 * dt);
+    const eaOn = d.run && d.dEA > 90;
+    if (eaOn && d.eaOnAt < 0) d.eaOnAt = d.t;
+    if (!eaOn) d.eaOnAt = -1;
+    const saOn = eaOn && d.t - d.eaOnAt > 3 && d.dOA > 90;
+    d.ea = approach(d.ea, eaOn ? 1 : 0, dt / 5);
+    d.sa = approach(d.sa, saOn ? 1 : 0, dt / 5);
+    const flow = d.sa * Math.min(1, d.dOA / 60);
+    const pumpOn = d.run || out < 5;
+
+    // клапан: ПИ-регулятор по температуре в помещении, в дежурном режиме держит обратку ~35 °C
+    let vt;
+    if (d.run && flow > 0.3) {
+      const e = sp - d.room;
+      d.integ = clamp(d.integ + e * dt * 0.015, -0.3, 0.5);
+      vt = clamp(0.3 + 0.3 * e + d.integ);
+    } else vt = clamp(0.25 + (35 - d.ret) * 0.04);
+    d.v = approach(d.v, vt, 0.08 * dt);
+
+    const twc = d.ret * (1 - d.v) + sup * d.v;
+    const aHt = flow > 0.05 ? out + (twc - out) * 0.55 : (twc + out) / 2;
+    d.aH += (aHt - d.aH) * (1 - Math.exp(-dt / 4));
+    const rett = pumpOn ? twc - (twc - out) * 0.2 * flow - 2 : d.ret;
+    d.ret += (rett - d.ret) * (1 - Math.exp(-dt / 6));
+    d.room += (0.03 * flow * (d.aH - d.room) + 0.004 * (out - d.room) + 0.06) * dt;
+
+    // фильтр понемногу забивается; после аварии его «меняют»
+    if (flow > 0.5) d.filter += 0.008 * dt;
+    const fdp = d.filter * d.sa * d.sa;
+    if (fdp > CONFIG.filterAlarm && d.filterAlarmAt < 0) d.filterAlarmAt = d.t;
+    if (d.filterAlarmAt >= 0 && d.t - d.filterAlarmAt > 25) { d.filter = 0.9; d.filterAlarmAt = -1; log('ok', 'Фильтр заменён (демо)'); }
+
+    const noise = on => on ? (Math.random() - 0.5) * 0.04 : 0;
+    const saDp = Math.max(0, 3.1 * d.sa * d.sa + noise(d.sa > 0.1));
+    const eaDp = Math.max(0, 2.6 * d.ea * d.ea + noise(d.ea > 0.1));
+
+    apply({
+      outdoor_temp: out, room_temp: d.room, room_sp: sp,
+      damper_oa_pos: d.dOA, damper_ea_pos: d.dEA,
+      filter_dp: fdp,
+      fan_ea_run: eaOn, fan_ea_speed: Math.round(d.ea * 85), fan_ea_dp: eaDp,
+      fan_sa_run: saOn, fan_sa_speed: Math.round(d.sa * 85), fan_sa_dp: saDp,
+      valve_pos: d.v * 100, pump_run: pumpOn,
+      water_supply_temp: sup, water_return_temp: d.ret, water_pressure: pumpOn ? 2.4 + noise(true) : 1.9,
+      air_heater_temp: d.aH,
+      unit_run: d.run, key_ea_local: false, key_sa_local: false,
+      alarm_filter: fdp > CONFIG.filterAlarm,
+      alarm_fan_ea: eaOn && d.t - d.eaOnAt > 8 && eaDp < 0.5,
+      alarm_fan_sa: saOn && eaDp > 0 && d.sa > 0.9 && saDp < 0.5,
+      alarm_freeze: flow > 0.1 && d.aH < 5,
+      alarm_water: pumpOn && d.ret < 20,
+      alarm_room: d.run && d.t > 120 && Math.abs(d.room - sp) > 3,
+    }, 'demo');
+  }
+  function setDemo(on) {
+    on = !!on;
+    $('#demo').checked = on;
+    if (on === demo.on) return;
+    demo.on = on;
+    clearInterval(demo.timer);
+    if (on) {
+      demoReset();
+      log('info', 'Демо-режим включён: значения имитируются');
+      demoStep(0);
+      demo.timer = setInterval(() => demoStep(0.2), 200);
+    } else {
+      log('info', 'Демо-режим выключен');
+    }
+    renderSource();
+  }
+  $('#demo').addEventListener('change', e => setDemo(e.target.checked));
+
+  /* ================= Публичный API ================= */
+  const PVU = {
+    /** PVU.set('room_temp', 21.4) или PVU.set({ room_temp: 21.4, fan_sa_run: true }) */
+    set(a, b) {
+      const values = typeof a === 'string' ? { [a]: b } : a;
+      if (demo.on && CONFIG.autoStopDemo) setDemo(false);
+      apply(values, 'ext');
+      renderSource();
+    },
+    get: k => k ? S[k] : { ...S },
+    demo: on => setDemo(on),
+    vars: VARS,
+    onCommand: null,
+  };
+  window.PVU = PVU;
+  addEventListener('message', e => {
+    const m = e.data;
+    if (m && m.type === 'pvu:set' && m.values && typeof m.values === 'object') PVU.set(m.values);
+  });
+
+  /* ================= Старт ================= */
+  const clock = $('#clock');
+  const tick = () => { clock.textContent = hhmmss(new Date()); renderSource(); };
+  setInterval(tick, 1000);
+  tick();
+  renderLog();
+  render();
+  setDemo(CONFIG.demo);
+})();
+</script>
+</body>
+</html>
