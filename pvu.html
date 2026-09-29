@@ -72,15 +72,17 @@ button { font: inherit; color: inherit; }
 .roof { fill: #e7eaed; stroke: #7a8088; stroke-width: .8; }
 .roof-seam { stroke: #b4b9bf; stroke-width: 1; }
 .edge { fill: #f3f4f5; stroke: #858b93; stroke-width: .8; }
-.post { fill: #eceef0; stroke: #858b93; stroke-width: .8; }
+.post { fill: url(#g-prof); stroke: #7a8088; stroke-width: .7; }
+.rail { fill: url(#g-rail); }
+.groove { stroke: #9aa0a7; stroke-width: .8; }
 .side-out { fill: #a9aeb5; stroke: #6f757d; stroke-width: .8; }
 .base { fill: #2e3135; stroke: #111111; stroke-width: 1; }
 .foot { fill: #0a0a0a; }
 
 .metal { stroke: #7a8088; stroke-width: .7; stroke-linejoin: round; }
-.metal.bf { fill: #e2e5e8; } .metal.bt { fill: #f6f7f8; } .metal.bs { fill: #b1b7be; }
+.metal.bf { fill: url(#g-mf); } .metal.bt { fill: url(#g-mt); } .metal.bs { fill: url(#g-ms); }
 .duct { stroke: #6f757d; stroke-width: .8; stroke-linejoin: round; }
-.duct.bf { fill: #cfd3d8; } .duct.bt { fill: #e9ebee; } .duct.bs { fill: #a3a9b0; }
+.duct.bf { fill: url(#g-df); } .duct.bt { fill: url(#g-dt); } .duct.bs { fill: url(#g-ds); }
 .act { stroke: #6b5300; stroke-width: .7; stroke-linejoin: round; }
 .act.bf { fill: #f2c200; } .act.bt { fill: #ffe373; } .act.bs { fill: #b88f00; }
 .sensor { stroke: #7a8088; stroke-width: .7; }
@@ -131,6 +133,78 @@ button { font: inherit; color: inherit; }
 .gauge-tick { stroke: #222222; stroke-width: 1; }
 .needle { stroke: #d42a22; stroke-width: 1.8; stroke-linecap: round; }
 .gauge-hub { fill: #222222; }
+
+
+/* детализация */
+.xbreak { stroke: #9aa0a7; stroke-width: .7; opacity: .75; }
+.flex { stroke: #2f3134; stroke-width: .6; } .flex.bf { fill: #55595e; } .flex.bt { fill: #72767b; }
+.flex-rib { stroke: #2a2c2f; stroke-width: .9; }
+.flange { stroke: #6b7178; stroke-width: .6; } .flange.bf { fill: #c3c8ce; } .flange.bt { fill: #eceef1; } .flange.bs { fill: #9aa0a7; }
+.louvre-bg { fill: #16181b; }
+.louvre-slat { fill: #d3d7dc; stroke: #7a8088; stroke-width: .5; }
+.panel-joint { stroke: #9ba1a8; stroke-width: .8; opacity: .8; }
+.profile { fill: url(#g-prof); stroke: #7a8088; stroke-width: .5; }
+.screw { fill: #6f767e; }
+.wool { fill: url(#p-wool); }
+.skin { stroke: #6f757d; stroke-width: 1.3; }
+.corner { fill: #3a3e44; stroke: #1c1e21; stroke-width: .6; }
+.lamp { fill: #eceff2; stroke: #7a8088; stroke-width: .8; }
+.lamp-lens { fill: #c9ced4; transition: fill .6s; }
+.lamp-glow { fill: url(#g-glow); opacity: 0; transition: opacity .8s; }
+#scheme[data-run="1"] .lamp-glow { opacity: 1; }
+#scheme[data-run="1"] .lamp-lens { fill: #fff3b8; }
+.shadow { fill: url(#g-shadow); }
+.side-seam { stroke: #878d95; stroke-width: .8; }
+.lug { fill: none; stroke: #8b9198; stroke-width: 2.2; }
+.base-lip { stroke: #50565d; stroke-width: 1.2; }
+.base-hole { fill: #121315; stroke: #4a4f55; stroke-width: .6; }
+.mount { fill: #151515; }
+.mount-plate { fill: #5d646c; }
+.blade-axis { stroke: #5d646c; stroke-width: 1; }
+.axle { fill: #50565d; }
+.arm { stroke: #5d646c; stroke-width: 2; stroke-linecap: round; }
+.rod { stroke: #7a8088; stroke-width: 2; stroke-linecap: round; }
+.act-dial { fill: #2e3237; stroke: #6b5300; stroke-width: .6; }
+.act-ind { stroke: #ffe373; stroke-width: 1.4; stroke-linecap: round; }
+.act-label { fill: #fff8d6; stroke: #6b5300; stroke-width: .4; }
+.bag { fill: #f3efe6; fill: color-mix(in srgb, #7b5a33 calc(var(--dirt) * 80%), #f3efe6); stroke: #a39b88; stroke-width: .7; }
+.bag-shade { fill: url(#g-bagshade); }
+.bag-seam { stroke: #b8b09d; stroke-width: .7; }
+.bag-top { fill: none; stroke: #ffffff; stroke-width: 1; opacity: .7; }
+.handle { fill: none; stroke: #6f767e; stroke-width: 1.6; }
+.pan-in { fill: #c9ced4; stroke: #8b9198; stroke-width: .5; }
+.pan-rim { fill: #eef0f2; stroke: #7a8088; stroke-width: .6; }
+.coil-frame { fill: none; stroke: #7a8088; stroke-width: 1.4; }
+.ubend { fill: none; stroke-width: 2.2; stroke: #b87333; stroke: color-mix(in srgb, #e0342a calc(var(--heat) * 100%), #b87333); }
+.clip { fill: #f4f5f6; }
+.sensor-win { fill: #3a4047; }
+.sensor-knob { fill: #d42a22; }
+.spring { fill: none; stroke: #3f7fd0; stroke-width: 1.5; stroke-linejoin: round; }
+.steel { stroke: #2e3237; stroke-width: .6; } .steel.bf { fill: #5d646c; } .steel.bt { fill: #7b838c; } .steel.bs { fill: #454b52; }
+.motor-end { fill: url(#g-motor-end); stroke: #2e3237; stroke-width: .8; }
+.plate { fill: #2e3237; stroke: #cfd3d8; stroke-width: .5; }
+.rot-arrow { fill: none; stroke: #d42a22; stroke-width: 1.4; }
+.rot-head { fill: #d42a22; }
+.guard { fill: none; stroke: #e6e9ec; stroke-width: .7; opacity: .75; }
+.pflange { fill: #9aa1a9; stroke: #33383e; stroke-width: .6; }
+.bv-body { fill: url(#g-valve); stroke: #2e3237; stroke-width: .8; }
+.bv-lever { fill: #d42a22; stroke: #7e1712; stroke-width: .6; }
+.strainer { fill: url(#g-valve); stroke: #2e3237; stroke-width: .8; }
+.valve-bonnet { fill: #5d646c; stroke: #2e3237; stroke-width: .6; }
+.elbow { fill: #3a3e44; opacity: .35; }
+.sleeve { fill: #50565d; stroke: #1c1e21; stroke-width: .6; }
+.motor-h { fill: url(#g-motor-h); stroke: #23272b; stroke-width: .8; }
+.motor-cap { fill: #454b52; stroke: #23272b; stroke-width: .8; }
+.tbox { fill: #5d646c; stroke: #23272b; stroke-width: .6; }
+.dp-rim { fill: #3a3e44; stroke: #9aa1a9; stroke-width: 1; }
+.dp-face { fill: #fbfbf8; }
+.dp-arc { fill: none; stroke: #2e7d32; stroke-width: 1.2; opacity: .6; }
+.imp-tube { fill: none; stroke: #8ec5ea; stroke-width: 1.4; stroke-linejoin: round; opacity: .85; }
+.tap { fill: #9aa1a9; stroke: #33383e; stroke-width: .5; }
+.tstat { fill: #f1f3f5; stroke: #8a9098; stroke-width: 1; }
+.lcd { fill: #b6d4ad; stroke: #5f6f5b; stroke-width: .8; }
+.lcd-t { font-family: var(--mono); font-size: 11px; font-weight: bold; fill: #1c2719; text-anchor: middle; }
+.tstat-btn { fill: #d5d9de; stroke: #8a9098; stroke-width: .8; }
 
 /* подписи и значения */
 .ttl { font-size: 24px; font-weight: bold; fill: var(--fg); text-anchor: middle; }
@@ -255,22 +329,28 @@ table.vars { width: 100%; min-width: 760px; border-collapse: collapse; font-size
   <div class="scheme-scroll">
     <svg id="scheme" viewBox="0 0 1400 820" role="group" aria-label="Приточно-вытяжная установка ПВУ-1 в разрезе" style="--heat:0; --dirt:0">
       <defs>
-        <linearGradient id="g-back" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#8f969e"></stop>
-          <stop offset="1" stop-color="#c3c8ce"></stop>
-        </linearGradient>
-        <radialGradient id="g-vol" cx=".38" cy=".34" r=".85">
-          <stop offset="0" stop-color="#ffffff"></stop>
-          <stop offset="1" stop-color="#c9ced4"></stop>
-        </radialGradient>
-        <radialGradient id="g-rim" cx=".5" cy=".5" r=".5">
-          <stop offset=".8" stop-color="#8d949c"></stop>
-          <stop offset="1" stop-color="#eef0f2"></stop>
-        </radialGradient>
-        <radialGradient id="g-pump" cx=".35" cy=".35" r=".8">
-          <stop offset="0" stop-color="#e9ecef"></stop>
-          <stop offset="1" stop-color="#7d848c"></stop>
-        </radialGradient>
+        <linearGradient id="g-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b929a"></stop><stop offset="1" stop-color="#c6cbd1"></stop></linearGradient>
+        <linearGradient id="g-mf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3f5f7"></stop><stop offset="1" stop-color="#d2d6db"></stop></linearGradient>
+        <linearGradient id="g-mt" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fbfbfc"></stop><stop offset="1" stop-color="#e4e7ea"></stop></linearGradient>
+        <linearGradient id="g-ms" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3c8ce"></stop><stop offset="1" stop-color="#979ea6"></stop></linearGradient>
+        <linearGradient id="g-df" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3e6e9"></stop><stop offset=".55" stop-color="#d1d5da"></stop><stop offset="1" stop-color="#bcc1c7"></stop></linearGradient>
+        <linearGradient id="g-dt" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f4f5f7"></stop><stop offset="1" stop-color="#dde0e4"></stop></linearGradient>
+        <linearGradient id="g-ds" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b3b9c0"></stop><stop offset="1" stop-color="#8a9199"></stop></linearGradient>
+        <linearGradient id="g-prof" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c4c9ce"></stop><stop offset=".45" stop-color="#f7f8f9"></stop><stop offset="1" stop-color="#b6bcc2"></stop></linearGradient>
+        <linearGradient id="g-rail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7f8f9"></stop><stop offset="1" stop-color="#aab0b7"></stop></linearGradient>
+        <linearGradient id="g-motor-h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b4148"></stop><stop offset=".4" stop-color="#9aa2ab"></stop><stop offset="1" stop-color="#30353b"></stop></linearGradient>
+        <linearGradient id="g-bagshade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".45"></stop><stop offset=".35" stop-color="#ffffff" stop-opacity="0"></stop><stop offset="1" stop-color="#000000" stop-opacity=".22"></stop></linearGradient>
+        <radialGradient id="g-vol" cx=".38" cy=".34" r=".85"><stop offset="0" stop-color="#ffffff"></stop><stop offset="1" stop-color="#c6cbd1"></stop></radialGradient>
+        <radialGradient id="g-rim" cx=".5" cy=".5" r=".5"><stop offset=".78" stop-color="#8d949c"></stop><stop offset=".9" stop-color="#f4f6f8"></stop><stop offset="1" stop-color="#a9b0b7"></stop></radialGradient>
+        <radialGradient id="g-pump" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#e9ecef"></stop><stop offset="1" stop-color="#6f767e"></stop></radialGradient>
+        <radialGradient id="g-valve" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#f1f3f5"></stop><stop offset="1" stop-color="#8a9199"></stop></radialGradient>
+        <radialGradient id="g-motor-end" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#a9b1ba"></stop><stop offset="1" stop-color="#3b4148"></stop></radialGradient>
+        <radialGradient id="g-shadow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000000" stop-opacity=".42"></stop><stop offset="1" stop-color="#000000" stop-opacity="0"></stop></radialGradient>
+        <radialGradient id="g-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6cc" stop-opacity=".95"></stop><stop offset=".35" stop-color="#fff6cc" stop-opacity=".45"></stop><stop offset="1" stop-color="#fff6cc" stop-opacity="0"></stop></radialGradient>
+        <pattern id="p-wool" width="10" height="6" patternUnits="userSpaceOnUse">
+          <rect width="10" height="6" fill="#e8dcaa"></rect>
+          <path d="M0 3 Q2.5 0.5 5 3 T10 3" fill="none" stroke="#c9b574" stroke-width=".8"></path>
+        </pattern>
       </defs>
       <g id="unit"></g>
       <g id="labels"></g>
@@ -498,6 +578,9 @@ window.PVU_CONFIG = { demo: false };</code></pre>
   const ROOF = 236, UP0 = 246, UP1 = 386, LO0 = 404, LO1 = 548, BASE0 = 558, BASE1 = 574;
   const SEAMS = [270, 460, 740, 950];
   const U = $('#unit'), L = $('#labels');
+  const shift = z => `translate(${(z * DX).toFixed(1)} ${(z * DY).toFixed(1)})`;
+  const pt = (x, y, z) => P(x, y, z).map(n => n.toFixed(1)).join(' ');
+  const NEEDLES = {};
 
   function badge(g, [cx, cy], dir) {
     const b = grp(g, { class: 'badge', transform: `translate(${cx.toFixed(1)} ${cy.toFixed(1)})` });
@@ -505,66 +588,186 @@ window.PVU_CONFIG = { demo: false };</code></pre>
     el('path', { d: dir > 0 ? 'M-9 -2 H1 V-7 L9 0 L1 7 V2 H-9 Z' : 'M9 -2 H-1 V-7 L-9 0 L-1 7 V2 H9 Z' }, b);
   }
 
-  // Заслонка: лопатки поворачиваются вокруг продольной оси
+  /* ---------- воздуховоды ---------- */
+  // рёбра жёсткости «зиг» крест-накрест на гранях короба
+  const crossBreak = (g, f) => { seg(g, f[0], f[2], 'xbreak'); seg(g, f[1], f[3], 'xbreak'); };
+  function ductRun(g, x0, x1, y0, y1, faces = 'stf', z0 = 0.12, z1 = 0.88) {
+    box(g, x0, x1, y0, y1, z0, z1, 'duct', faces);
+    crossBreak(g, fZ(z0, x0, x1, y0, y1));
+    crossBreak(g, fY(y0, x0, x1, z0, z1));
+    if (faces.includes('s')) crossBreak(g, fX(x1, y0, y1, z0, z1));
+  }
+  // гибкая вставка между установкой и воздуховодом
+  function flexConn(g, x0, x1, y0, y1, z0 = 0.14, z1 = 0.86) {
+    poly(g, fY(y0, x0, x1, z0, z1), 'flex bt');
+    poly(g, fZ(z0, x0, x1, y0, y1), 'flex bf');
+    for (let x = x0 + 2; x < x1 - 1; x += 3) {
+      seg(g, P(x, y0, z0), P(x, y1, z0), 'flex-rib');
+      seg(g, P(x, y0, z0), P(x, y0, z1), 'flex-rib');
+    }
+  }
+  const flange = (g, x, y0, y1, faces = 'stf') => box(g, x - 2, x + 2, y0 - 4, y1 + 4, 0.09, 0.91, 'flange', faces);
+  // наружная жалюзийная решётка
+  function louvre(g, x0, x1, y0, y1) {
+    box(g, x0, x1, y0, y1, 0.12, 0.88, 'duct', 'tf');
+    poly(g, fZ(0.12, x0 + 3, x1 - 3, y0 + 4, y1 - 4), 'louvre-bg');
+    for (let y = y0 + 9; y < y1 - 5; y += 7) {
+      poly(g, [P(x0 + 3, y - 4, 0.12), P(x1 - 3, y - 4, 0.12), P(x1 - 3, y, 0.12), P(x0 + 3, y + 2, 0.12)], 'louvre-slat');
+    }
+  }
+
+  /* ---------- корпус ---------- */
+  function lamp(g, x, y) {
+    const [cx, cy] = P(x, y, 1);
+    el('ellipse', { class: 'lamp-glow', cx: cx.toFixed(1), cy: cy.toFixed(1), rx: 30, ry: 22 }, g);
+    el('ellipse', { class: 'lamp', cx: cx.toFixed(1), cy: cy.toFixed(1), rx: 8, ry: 6 }, g);
+    el('ellipse', { class: 'lamp-lens', cx: cx.toFixed(1), cy: (cy + 0.6).toFixed(1), rx: 5, ry: 3.4 }, g);
+  }
+  // задняя стенка и пол: стойки каркаса, винты, светильники
+  function deckInterior(g, y0, y1, lamps) {
+    poly(g, fZ(1, X0, X1, y0, y1), 'back');
+    for (let y = y0 + 36; y < y1 - 10; y += 48) seg(g, P(X0 + 8, y, 1), P(X1, y, 1), 'panel-joint');
+    poly(g, fY(y1, X0, X1), 'floor');
+    for (const x of SEAMS) {
+      poly(g, fZ(1, x - 3, x + 3, y0, y1), 'profile');
+      poly(g, fY(y1 - 0.5, x - 3, x + 3, 0, 1), 'profile');
+      for (let y = y0 + 12; y < y1; y += 22) {
+        const [sx, sy] = P(x, y, 1);
+        el('circle', { class: 'screw', cx: sx.toFixed(1), cy: sy.toFixed(1), r: 1.1 }, g);
+      }
+    }
+    for (const [x, y] of lamps) lamp(g, x, y);
+    poly(g, fX(X0 + 8, y0, y1), 'endwall');
+  }
+  function cutH(g, x0, x1, y0, y1) {
+    el('rect', { class: 'wool', x: x0, y: y0, width: x1 - x0, height: y1 - y0 }, g);
+    seg(g, [x0, y0], [x1, y0], 'skin');
+    seg(g, [x0, y1], [x1, y1], 'skin');
+  }
+  function cutV(g, x0, x1, y0, y1) {
+    el('rect', { class: 'wool', x: x0, y: y0, width: x1 - x0, height: y1 - y0 }, g);
+    seg(g, [x0, y0], [x0, y1], 'skin');
+    seg(g, [x1, y0], [x1, y1], 'skin');
+  }
+  function post(g, x, y0, y1) {
+    el('rect', { class: 'post', x: x - 4, y: y0, width: 8, height: y1 - y0 }, g);
+    seg(g, [x, y0 + 2], [x, y1 - 2], 'groove');
+  }
+
+  /* ---------- заслонка ---------- */
   const DAMPERS = {};
   function damper(g, id, x, y0, y1, n) {
     const d = grp(g, { class: 'eq', id: `eq-${id}`, 'data-dev': id });
     const h = (y1 - y0) / n;
+    poly(d, fY(y1 - 0.5, x - 16, x + 22, 0.1, 0.95), 'shadow');
     const blades = [];
-    for (let i = 0; i < n; i++) blades.push({ cy: y0 + h * (i + 0.5), el: el('polygon', { class: 'blade' }, d) });
-    box(d, x - 5, x + 5, y0 - 5, y0, 0.03, 0.97, 'metal', 'st');
-    seg(d, P(x, y0, 0.97), P(x, y1, 0.97), 'seam');
-    box(d, x - 5, x + 5, y0, y1, 0.02, 0.97, 'metal', 'f');
+    for (let i = 0; i < n; i++) {
+      const cy = y0 + h * (i + 0.5);
+      blades.push({ cy, el: el('polygon', { class: 'blade' }, d) });
+      seg(d, P(x, cy, 0.05), P(x, cy, 0.95), 'blade-axis');
+    }
+    box(d, x - 6, x + 6, y0 - 6, y0, 0.02, 0.98, 'metal', 'st');
+    box(d, x - 6, x + 6, y0, y1, 0.02, 0.98, 'metal', 'f');
+    for (const b of blades) { const [ax, ay] = P(x, b.cy, 0.02); el('circle', { class: 'axle', cx: ax.toFixed(1), cy: ay.toFixed(1), r: 1.8 }, d); }
+    const arms = blades.map(() => el('line', { class: 'arm' }, d));
+    const rod = el('line', { class: 'rod' }, d);
     const ym = (y0 + y1) / 2;
-    box(d, x + 6, x + 24, ym - 14, ym + 14, 0, 0.08, 'act');
-    DAMPERS[id] = { x, h, blades, z0: 0.05, z1: 0.95 };
+    el('line', { class: 'stem', x1: x + 2, y1: ym, x2: x + 9, y2: ym }, d);
+    box(d, x + 9, x + 29, ym - 17, ym + 17, 0, 0.1, 'act');
+    const ix = x + 19, iy = ym - 7;
+    el('circle', { class: 'act-dial', cx: ix, cy: iy, r: 5.5 }, d);
+    const ind = el('line', { class: 'act-ind', x1: ix, y1: iy }, d);
+    el('rect', { class: 'act-label', x: x + 12, y: ym + 3, width: 14, height: 8, rx: 1 }, d);
+    DAMPERS[id] = { x, h, blades, arms, rod, ind, ix, iy, z0: 0.05, z1: 0.95 };
   }
   function setDamper(id, frac) {
     const D = DAMPERS[id], th = clamp(frac) * 1.48;
-    const s = Math.sin(th) * D.h * 0.51, c = Math.cos(th) * D.h * 0.51;
-    const k = Math.round(150 + 88 * Math.sin(th));
+    const sn = Math.sin(th), cs = Math.cos(th);
+    const s = sn * D.h * 0.51, c = cs * D.h * 0.51;
+    const k = Math.round(150 + 88 * sn);
     const fill = `rgb(${k},${k + 4},${Math.min(255, k + 10)})`;
     for (const b of D.blades) {
       const ax = D.x - s, ay = b.cy - c, bx = D.x + s, by = b.cy + c;
       b.el.setAttribute('points', pstr([P(ax, ay, D.z0), P(bx, by, D.z0), P(bx, by, D.z1), P(ax, ay, D.z1)]));
       b.el.style.fill = fill;
     }
+    // рычаги на осях и общая тяга
+    const a = 10, ends = D.blades.map(b => P(D.x - a * sn, b.cy + a * cs, 0));
+    D.blades.forEach((b, i) => {
+      const [px, py] = P(D.x, b.cy, 0.02);
+      D.arms[i].setAttribute('x1', px.toFixed(1)); D.arms[i].setAttribute('y1', py.toFixed(1));
+      D.arms[i].setAttribute('x2', ends[i][0].toFixed(1)); D.arms[i].setAttribute('y2', ends[i][1].toFixed(1));
+    });
+    const f = ends[0], l = ends[ends.length - 1];
+    D.rod.setAttribute('x1', f[0].toFixed(1)); D.rod.setAttribute('y1', (f[1] - 4).toFixed(1));
+    D.rod.setAttribute('x2', l[0].toFixed(1)); D.rod.setAttribute('y2', (l[1] + 4).toFixed(1));
+    // указатель положения на приводе
+    D.ind.setAttribute('x2', (D.ix - 4.5 * sn).toFixed(1));
+    D.ind.setAttribute('y2', (D.iy - 4.5 * cs).toFixed(1));
   }
 
-  function filterUnit(g, x0, x1, y0, y1) {
+  /* ---------- карманный фильтр ---------- */
+  function pocketFilter(g, x0, x1, y0, y1) {
     const d = grp(g, { class: 'eq', id: 'eq-flt', 'data-dev': 'flt' });
-    const N = 28;
-    for (let i = 0; i < N; i++) {
-      const za = 0.05 + i * 0.9 / N, zb = za + 0.9 / N;
-      poly(d, [P(x1, y0 + 3, za), P(x1, y0 + 3, zb), P(x1, y1 - 3, zb), P(x1, y1 - 3, za)], i % 2 ? 'pleat-b' : 'pleat-a');
+    const Lp = 74, n = 6;
+    poly(d, fY(y1 - 0.5, x0 - 4, x1 + Lp + 6, 0.05, 0.95), 'shadow');
+    box(d, x0, x1, y0, y1, 0.03, 0.97, 'metal', 'st');
+    for (let i = n - 1; i >= 0; i--) {
+      const pg = grp(d, { transform: shift(0.1 + i * 0.13) });
+      const tip = x1 + Lp;
+      const bag = `M${x1} ${y0 + 3} L${tip - 9} ${y0 + 9} Q${tip} ${y0 + 10} ${tip} ${y0 + 19} L${tip} ${y1 - 19} Q${tip} ${y1 - 10} ${tip - 9} ${y1 - 9} L${x1} ${y1 - 3} Z`;
+      el('path', { d: bag, class: 'bag' }, pg);
+      el('path', { d: bag, class: 'bag-shade' }, pg);
+      for (const f of [0.34, 0.6, 0.84]) {
+        const xx = x1 + Lp * f, dy = 3 + 7 * f;
+        el('line', { class: 'bag-seam', x1: xx, y1: y0 + dy + 1, x2: xx, y2: y1 - dy - 1 }, pg);
+      }
+      el('path', { class: 'bag-top', d: `M${x1} ${y0 + 3} L${tip - 9} ${y0 + 9}` }, pg);
     }
-    poly(d, fX(x1, y0, y1, 0.04, 0.96), 'media-frame');
-    poly(d, fY(y0, x0, x1, 0.04, 0.96), 'metal bt');
-    poly(d, fZ(0.04, x0, x1, y0, y1), 'metal bf');
+    poly(d, fZ(0.03, x0, x1, y0, y1), 'metal bf');
+    for (const y of [y0 + 30, y1 - 30]) el('rect', { class: 'handle', x: x0 + 5, y: y - 6, width: 10, height: 12, rx: 3 }, d);
   }
 
+  /* ---------- калорифер ---------- */
   function coilUnit(g, x0, x1, y0, y1) {
     const d = grp(g, { class: 'eq', id: 'eq-htr', 'data-dev': 'htr' });
+    // поддон для конденсата
+    poly(d, fY(LO1 - 1.5, x0 - 12, x1 + 16, 0.02, 0.98), 'pan-in');
+    poly(d, fX(x1 + 16, LO1 - 8, LO1 - 1, 0.02, 0.98), 'pan-rim');
     poly(d, fX(x1, y0, y1, 0.04, 0.96), 'coil-face');
-    for (let i = 1; i < 36; i++) { const z = 0.04 + i * 0.92 / 36; seg(d, P(x1, y0 + 2, z), P(x1, y1 - 2, z), 'fin'); }
-    for (let y = y0 + 9; y < y1 - 4; y += 13) seg(d, P(x1, y, 0.05), P(x1, y, 0.95), 'tube');
+    for (let i = 1; i < 48; i++) { const z = 0.04 + i * 0.92 / 48; seg(d, P(x1, y0 + 2, z), P(x1, y1 - 2, z), 'fin'); }
+    for (let y = y0 + 8; y < y1 - 4; y += 11) seg(d, P(x1, y, 0.05), P(x1, y, 0.95), 'tube');
+    poly(d, fX(x1, y0, y1, 0.04, 0.96), 'coil-frame');
     poly(d, fY(y0, x0, x1, 0.04, 0.96), 'metal bt');
     poly(d, fZ(0.04, x0, x1, y0, y1), 'metal bf');
-    const sx = Math.round(P(x0 + 9, 0, 0.03)[0]), rx = Math.round(P(x1 - 9, 0, 0.03)[0]);
-    pipe(d, [[sx, y0 + 6], [sx, y1 + 4]], 'hot');
-    pipe(d, [[rx, y0 + 6], [rx, y1 + 4]], 'cold');
+    // калачи на торцевой доске
+    for (let y = y0 + 8; y + 11 < y1 - 2; y += 22) {
+      el('path', { class: 'ubend', d: `M${pt(x0 + 21, y, 0.03)} A5.5 5.5 0 0 1 ${pt(x0 + 21, y + 11, 0.03)}` }, d);
+    }
+    el('path', { class: 'pan-rim', d: `M${pt(x0 - 12, LO1 - 8, 0.02)} L${pt(x1 + 16, LO1 - 8, 0.02)} L${pt(x1 + 16, LO1 - 1, 0.02)} L${pt(x0 - 12, LO1 - 1, 0.02)} Z` }, d);
+    // коллекторы с воздушниками
+    const sx = Math.round(P(x0 + 6, 0, 0.03)[0]), rx = Math.round(P(x1 - 6, 0, 0.03)[0]);
+    pipe(d, [[sx, y0 + 8], [sx, y1 + 4]], 'hot');
+    pipe(d, [[rx, y0 + 8], [rx, y1 + 4]], 'cold');
+    for (const px of [sx, rx]) {
+      el('rect', { class: 'pflange', x: px - 3, y: y0 + 1, width: 6, height: 7, rx: 1 }, d);
+      el('rect', { class: 'bv-lever', x: px - 1, y: y0 - 4, width: 2, height: 5 }, d);
+    }
     return { sx, rx };
   }
 
   function freezestat(g, x) {
     const d = grp(g, { class: 'eq', id: 'eq-te-air', 'data-dev': 'te-air' });
     const pts = [];
-    for (let i = 0; i <= 8; i++) pts.push(P(x, LO0 + 22 + i * 14, i % 2 ? 0.9 : 0.12));
+    for (let i = 0; i <= 8; i++) pts.push(P(x, LO0 + 26 + i * 13.5, i % 2 ? 0.9 : 0.12));
     el('polyline', { points: pstr(pts), class: 'capillary' }, d);
-    box(d, x - 8, x + 8, LO0 + 6, LO0 + 22, 0.02, 0.12, 'sensor');
+    for (const p of pts) el('circle', { class: 'clip', cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 1.4 }, d);
+    box(d, x - 10, x + 10, LO0 + 6, LO0 + 26, 0.02, 0.14, 'sensor');
+    el('rect', { class: 'sensor-win', x: x - 6, y: LO0 + 10, width: 8, height: 5 }, d);
+    el('circle', { class: 'sensor-knob', cx: x + 5, cy: LO0 + 19, r: 2.5 }, d);
   }
 
-  // Радиальный вентилятор в улитке, всасывающим патрубком к зрителю
+  /* ---------- радиальный вентилятор ---------- */
   function volutePath(R) {
     let d = `M0 ${-R}`;
     for (let i = 1; i <= 60; i++) {
@@ -573,10 +776,25 @@ window.PVU_CONFIG = { demo: false };</code></pre>
     }
     return d + ` L${(1.3 * R).toFixed(1)} ${(-1.38 * R).toFixed(1)} L${(1.3 * R).toFixed(1)} ${-R} Z`;
   }
+  function spring(g, x, ya, yb, z) {
+    const pts = [];
+    for (let i = 0; i <= 7; i++) pts.push(P(x + (i === 0 || i === 7 ? 0 : i % 2 ? 3.5 : -3.5), ya + (yb - ya) * i / 7, z));
+    el('polyline', { points: pstr(pts), class: 'spring' }, g);
+  }
   const WHEELS = {};
   function fanUnit(g, id, xc, yc, R, dir, floorY) {
     const d = grp(g, { class: 'eq', id: `eq-${id}`, 'data-dev': id });
-    box(d, xc - R * 0.75, xc + R * 0.75, yc + R * 1.1, floorY, 0.3, 0.72, 'metal');
+    poly(d, fY(floorY - 0.5, xc - R * 1.2, xc + R * 1.35, 0.12, 0.92), 'shadow');
+    // рама на пружинных виброизоляторах
+    const fy0 = yc + R * 1.12, fy1 = fy0 + 6;
+    for (const sx of [xc - R * 0.65, xc + R * 0.65]) spring(d, sx, fy1, floorY, 0.72);
+    box(d, xc - R * 0.85, xc + R * 0.85, fy0, fy1, 0.26, 0.76, 'steel');
+    for (const sx of [xc - R * 0.65, xc + R * 0.65]) spring(d, sx, fy1, floorY, 0.3);
+    // двигатель за улиткой
+    const [mx, my] = P(xc, yc, 0.9);
+    el('circle', { class: 'motor-end', cx: mx.toFixed(1), cy: my.toFixed(1), r: R * 0.5 }, d);
+    for (let i = -2; i <= 2; i++) seg(d, [mx - R * 0.42, my + i * 5], [mx + R * 0.42, my + i * 5], 'motor-fin');
+    // улитка
     const vol = volutePath(R);
     for (let z = 0.64; z > 0.4; z -= 0.03) {
       const [px, py] = P(xc, yc, z);
@@ -584,54 +802,108 @@ window.PVU_CONFIG = { demo: false };</code></pre>
     }
     const [fx, fy] = P(xc, yc, 0.38);
     const f = grp(d, { transform: `translate(${fx.toFixed(1)} ${fy.toFixed(1)})` });
-    el('path', { d: vol, class: 'vol-front', transform: `scale(${dir} 1)` }, f);
-    el('circle', { r: R * 0.64, class: 'inlet-rim' }, f);
+    const m = grp(f, { transform: `scale(${dir} 1)` });
+    el('path', { d: vol, class: 'vol-front' }, m);
+    // фланец нагнетания с гибкой вставкой
+    el('rect', { class: 'flex bf', x: 1.3 * R, y: -1.42 * R, width: 7, height: 0.46 * R }, m);
+    for (let i = 1; i < 3; i++) el('line', { class: 'flex-rib', x1: 1.3 * R + i * 2.4, x2: 1.3 * R + i * 2.4, y1: -1.42 * R, y2: -0.96 * R }, m);
+    el('rect', { class: 'flange bf', x: 1.3 * R + 7, y: -1.48 * R, width: 3, height: 0.58 * R }, m);
+    // стрелка направления вращения и шильдик
+    el('path', { class: 'rot-arrow', d: `M${(-0.86 * R).toFixed(1)} ${(0.3 * R).toFixed(1)} A${(0.9 * R).toFixed(1)} ${(0.9 * R).toFixed(1)} 0 0 1 ${(-0.45 * R).toFixed(1)} ${(-0.78 * R).toFixed(1)}` }, m);
+    el('path', { class: 'rot-head', d: `M${(-0.45 * R).toFixed(1)} ${(-0.78 * R).toFixed(1)} l-6 -1 l3 6 z` }, m);
+    el('rect', { class: 'plate', x: 0.5 * R, y: 0.62 * R, width: 16, height: 9, rx: 1 }, m);
+    // всасывающий коллектор, колесо, защитная решётка
+    el('circle', { r: R * 0.66, class: 'inlet-rim' }, f);
     el('circle', { r: R * 0.53, class: 'inlet' }, f);
     const w = grp(f, { class: 'wheel' });
     const r1 = R * 0.24, r2 = R * 0.5;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 12; i++) {
       const qx = ((r1 + r2) / 2).toFixed(1), qy = (-(r2 - r1) * 0.55 * dir).toFixed(1);
       const ex = (r2 * Math.cos(0.55)).toFixed(1), ey = (-r2 * Math.sin(0.55) * dir).toFixed(1);
-      el('path', { d: `M${r1.toFixed(1)} 0 Q${qx} ${qy} ${ex} ${ey}`, transform: `rotate(${i * 36})` }, w);
+      el('path', { d: `M${r1.toFixed(1)} 0 Q${qx} ${qy} ${ex} ${ey}`, transform: `rotate(${i * 30})` }, w);
     }
     el('circle', { r: R * 0.2, class: 'hub' }, f);
     el('circle', { r: R * 0.06, class: 'hub-dot' }, f);
+    for (const r of [0.3, 0.42, 0.53]) el('circle', { r: R * r, class: 'guard' }, f);
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      el('line', { class: 'guard', x1: (Math.cos(a) * R * 0.22).toFixed(1), y1: (Math.sin(a) * R * 0.22).toFixed(1), x2: (Math.cos(a) * R * 0.55).toFixed(1), y2: (Math.sin(a) * R * 0.55).toFixed(1) }, f);
+    }
     WHEELS[id] = w;
   }
 
+  /* ---------- арматура ---------- */
+  function ballValve(g, x, y) {
+    el('rect', { class: 'pflange', x: x - 8, y: y - 10, width: 16, height: 3 }, g);
+    el('rect', { class: 'pflange', x: x - 8, y: y + 7, width: 16, height: 3 }, g);
+    el('rect', { class: 'bv-body', x: x - 7, y: y - 7, width: 14, height: 14, rx: 3 }, g);
+    el('rect', { class: 'pflange', x: x + 6, y: y - 2, width: 4, height: 4 }, g);
+    el('rect', { class: 'bv-lever', x: x + 9, y: y - 17, width: 4, height: 19, rx: 2 }, g);
+  }
+  function strainer(g, x, y) {
+    el('rect', { class: 'pflange', x: x - 8, y: y - 11, width: 16, height: 3 }, g);
+    el('rect', { class: 'pflange', x: x - 8, y: y + 8, width: 16, height: 3 }, g);
+    el('path', { class: 'strainer', d: `M${x - 7} ${y - 8} H${x + 7} V${y + 8} H${x - 7} Z M${x - 3} ${y + 1} L${x - 15} ${y + 13} L${x - 10} ${y + 18} L${x + 2} ${y + 6} Z` }, g);
+    el('path', { class: 'pflange', d: `M${x - 18} ${y + 14} L${x - 11} ${y + 21} L${x - 9} ${y + 19} L${x - 16} ${y + 12} Z` }, g);
+  }
+  function dialFace(g, id, cx, cy, r, cls = 'gauge') {
+    el('circle', { class: `${cls}-rim`, cx, cy, r }, g);
+    el('circle', { class: `${cls}-face`, cx, cy, r: r - 2.5 }, g);
+    for (let i = 0; i <= 8; i++) {
+      const a = (-135 + i * 33.75) * Math.PI / 180, s = Math.sin(a), c = -Math.cos(a);
+      el('line', { class: 'gauge-tick', x1: (cx + s * (r - 5.5)).toFixed(1), y1: (cy + c * (r - 5.5)).toFixed(1), x2: (cx + s * (r - 3)).toFixed(1), y2: (cy + c * (r - 3)).toFixed(1) }, g);
+    }
+    if (cls === 'dp') el('path', { class: 'dp-arc', d: `M${(cx - (r - 6) * 0.707).toFixed(1)} ${(cy + (r - 6) * 0.707).toFixed(1)} A${r - 6} ${r - 6} 0 1 1 ${(cx + (r - 6) * 0.707).toFixed(1)} ${(cy + (r - 6) * 0.707).toFixed(1)}` }, g);
+    NEEDLES[id] = { el: el('line', { class: 'needle', x1: cx, y1: cy, x2: cx, y2: cy - (r - 4) }, g), cx, cy };
+    el('circle', { class: 'gauge-hub', cx, cy, r: 2 }, g);
+  }
+  function gauge(g, id, cx, cy, pipeX) {
+    const d = grp(g, { class: 'eq', id: `eq-${id}`, 'data-dev': id });
+    el('line', { class: 'gauge-stem', x1: cx + 14, y1: cy, x2: pipeX - 4, y2: cy }, d);
+    el('rect', { class: 'pflange', x: cx + 16, y: cy - 4, width: 5, height: 8 }, d);
+    dialFace(d, id, cx, cy, 15);
+  }
+  // дифманометр со шкалой в мбар и импульсными трубками
+  function dpGauge(g, id, dev, cx, cy, tubes, bracket) {
+    const d = grp(g, { class: 'eq', id: `eq-${id}`, 'data-dev': dev });
+    for (const t of tubes) el('path', { class: 'imp-tube', d: t }, d);
+    if (bracket) el('rect', { class: 'steel bf', x: cx - 2, y: cy + 12, width: 4, height: bracket }, d);
+    el('rect', { class: 'pflange', x: cx - 8, y: cy + 10, width: 5, height: 4 }, d);
+    el('rect', { class: 'pflange', x: cx + 3, y: cy + 10, width: 5, height: 4 }, d);
+    dialFace(d, id, cx, cy, 13, 'dp');
+  }
+
   /* ================= Сборка установки ================= */
-  // левые патрубки (стоят за корпусом)
+  // левые патрубки: решётка, короб, гибкая вставка
   const gL = grp(U);
-  box(gL, 120, X0, 262, 370, 0.12, 0.88, 'duct', 'tf');
-  box(gL, 120, X0, 420, 532, 0.12, 0.88, 'duct', 'tf');
-  badge(gL, P(160, 316, 0.12), -1);
-  badge(gL, P(160, 476, 0.12), 1);
+  for (const [y0, y1, dir] of [[262, 370, -1], [420, 532, 1]]) {
+    ductRun(gL, 146, 184, y0, y1, 'tf');
+    louvre(gL, 120, 146, y0, y1);
+    flange(gL, 146, y0, y1, 'tf');
+    flexConn(gL, 184, X0, y0 + 2, y1 - 2);
+    flange(gL, 184, y0, y1, 'tf');
+    badge(gL, P(165, (y0 + y1) / 2, 0.12), dir);
+  }
 
   // нижняя секция — приток
   const gLo = grp(U);
-  poly(gLo, fZ(1, X0, X1, LO0, LO1), 'back');
-  poly(gLo, fY(LO1, X0, X1), 'floor');
-  poly(gLo, fX(X0 + 8, LO0, LO1), 'endwall');
+  deckInterior(gLo, LO0, LO1, [[680, 460], [1010, 460]]);
   poly(gLo, fX(X0 + 8, 420, 532, 0.12, 0.88), 'opening');
-  for (const x of SEAMS) { seg(gLo, P(x, LO0, 1), P(x, LO1, 1), 'seam'); seg(gLo, P(x, LO1, 1), P(x, LO1, 0), 'seam'); }
   const gFlowSA = grp(gLo, { id: 'flow-sa' });
   for (const [z, y, k, lane] of [[0.25, 506, 0.85, 'a'], [0.5, 478, 1.2, 'b'], [0.78, 452, 0.95, 'a']]) {
-    el('path', { class: `flow sa lane-${lane}`, 'data-k': k, d: `M${P(208, y, z)} L${P(516, y, z)}` }, gFlowSA);
-    el('path', { class: `flow sa warm lane-${lane}`, 'data-k': k, d: `M${P(552, y, z)} L${P(X1, y, z)}` }, gFlowSA);
+    el('path', { class: `flow sa lane-${lane}`, 'data-k': k, d: `M${P(208, y, z)} L${P(505, y, z)}` }, gFlowSA);
+    el('path', { class: `flow sa warm lane-${lane}`, 'data-k': k, d: `M${P(556, y, z)} L${P(X1, y, z)}` }, gFlowSA);
   }
   damper(gLo, 'dmp-oa', 228, LO0 + 6, LO1 - 4, 5);
-  filterUnit(gLo, 330, 350, LO0 + 4, LO1 - 2);
-  const coilPorts = coilUnit(gLo, 516, 548, LO0 + 6, LO1 - 2);
-  freezestat(gLo, 580);
+  pocketFilter(gLo, 330, 348, LO0 + 4, LO1 - 2);
+  const coilPorts = coilUnit(gLo, 510, 552, LO0 + 8, LO1 - 3);
+  freezestat(gLo, 584);
   fanUnit(gLo, 'fan-sa', 820, 484, 42, 1, LO1);
 
   // верхняя секция — вытяжка
   const gUp = grp(U);
-  poly(gUp, fZ(1, X0, X1, UP0, UP1), 'back');
-  poly(gUp, fY(UP1, X0, X1), 'floor');
-  poly(gUp, fX(X0 + 8, UP0, UP1), 'endwall');
+  deckInterior(gUp, UP0, UP1, [[330, 300], [870, 300]]);
   poly(gUp, fX(X0 + 8, 262, 370, 0.12, 0.88), 'opening');
-  for (const x of SEAMS) { seg(gUp, P(x, UP0, 1), P(x, UP1, 1), 'seam'); seg(gUp, P(x, UP1, 1), P(x, UP1, 0), 'seam'); }
   const gFlowEA = grp(gUp, { id: 'flow-ea' });
   for (const [z, y, k, lane] of [[0.25, 352, 0.85, 'a'], [0.5, 322, 1.2, 'b'], [0.78, 296, 0.95, 'a']]) {
     el('path', { class: `flow ea lane-${lane}`, 'data-k': k, d: `M${P(X1, y, z)} L${P(208, y, z)}` }, gFlowEA);
@@ -639,26 +911,59 @@ window.PVU_CONFIG = { demo: false };</code></pre>
   damper(gUp, 'dmp-ea', 228, UP0 + 4, UP1 - 4, 5);
   fanUnit(gUp, 'fan-ea', 640, 322, 42, -1, UP1);
 
-  // крыша, торец, кромки разреза, рама
+  // крыша, наружный торец, срез панелей с утеплителем, каркас
   const gF = grp(U);
   poly(gF, fY(ROOF, X0, X1), 'roof');
-  for (const x of SEAMS) seg(gF, P(x, ROOF, 0), P(x, ROOF, 1), 'roof-seam');
+  for (const x of SEAMS) {
+    seg(gF, P(x, ROOF, 0), P(x, ROOF, 1), 'roof-seam');
+    for (let z = 0.12; z < 1; z += 0.19) { const [sx, sy] = P(x, ROOF, z); el('circle', { class: 'screw', cx: sx.toFixed(1), cy: sy.toFixed(1), r: 1.1 }, gF); }
+  }
+  for (const x of [X0 + 40, X1 - 40]) {
+    const [lx, ly] = P(x, ROOF, 0.5);
+    el('path', { class: 'lug', d: `M${(lx - 6).toFixed(1)} ${ly.toFixed(1)} a6 7 0 0 1 12 0` }, gF);
+  }
   poly(gF, fX(X1, ROOF, BASE1), 'side-out');
-  poly(gF, fZ(0, X0, X1, ROOF, UP0), 'edge');
-  poly(gF, fZ(0, X0, X1, UP1, LO0), 'edge');
-  poly(gF, fZ(0, X0, X1, LO1, BASE0), 'edge');
-  poly(gF, fZ(0, X0, X0 + 8, ROOF, BASE0), 'edge');
-  poly(gF, fZ(0, X1 - 8, X1, ROOF, BASE0), 'edge');
-  for (const x of SEAMS) { poly(gF, fZ(0, x - 3, x + 3, UP0, UP1), 'post'); poly(gF, fZ(0, x - 3, x + 3, LO0, LO1), 'post'); }
+  for (const y of [UP1, 395, LO0]) seg(gF, P(X1, y, 0), P(X1, y, 1), 'side-seam');
+  seg(gF, P(X1, ROOF, 0.5), P(X1, BASE0, 0.5), 'side-seam');
+  cutH(gF, X0, X1, ROOF, UP0);
+  cutH(gF, X0, X1, UP1, 394);
+  cutH(gF, X0, X1, 396, LO0);
+  el('rect', { class: 'rail', x: X0, y: 394, width: X1 - X0, height: 2 }, gF);
+  cutH(gF, X0, X1, LO1, BASE0);
+  cutV(gF, X0, X0 + 8, UP0, UP1);
+  cutV(gF, X0, X0 + 8, LO0, LO1);
+  cutV(gF, X1 - 8, X1, UP0, UP1);
+  cutV(gF, X1 - 8, X1, LO0, LO1);
+  for (const x of SEAMS) { post(gF, x, UP0, UP1); post(gF, x, LO0, LO1); }
+  for (const [x, y] of [[X0 - 2, ROOF - 2], [X1 - 10, ROOF - 2], [X0 - 2, BASE0 - 10], [X1 - 10, BASE0 - 10], [X0 - 2, UP1 + 3], [X1 - 10, UP1 + 3]]) {
+    el('rect', { class: 'corner', x, y, width: 12, height: 12, rx: 2.5 }, gF);
+  }
+  // рама-основание из швеллера с опорами
   poly(gF, fZ(0, X0, X1, BASE0, BASE1), 'base');
-  for (const x of [240, 430, 620, 810, 1000]) el('rect', { class: 'foot', x, y: BASE1, width: 44, height: 8 }, gF);
+  seg(gF, [X0, BASE0 + 2], [X1, BASE0 + 2], 'base-lip');
+  seg(gF, [X0, BASE1 - 2], [X1, BASE1 - 2], 'base-lip');
+  for (let x = X0 + 28; x < X1 - 20; x += 56) el('circle', { class: 'base-hole', cx: x, cy: (BASE0 + BASE1) / 2, r: x % 112 === 4 ? 4 : 2.5 }, gF);
+  for (const x of [230, 420, 610, 800, 990]) {
+    el('rect', { class: 'mount-plate', x, y: BASE1, width: 40, height: 3 }, gF);
+    el('rect', { class: 'mount', x: x + 6, y: BASE1 + 3, width: 28, height: 5, rx: 1 }, gF);
+    el('rect', { class: 'mount-plate', x: x + 2, y: BASE1 + 8, width: 36, height: 2 }, gF);
+  }
+
+  // дифманометры: PD 4а на крыше, PD 3а и PD 5а на раме
+  dpGauge(gF, 'pd4a', 'pd-ea', 628, 202, ['M623 215 V221 H578 V224', 'M633 215 V221 H690 V224'], 7);
+  el('circle', { class: 'tap', cx: 578, cy: 225, r: 2 }, gF);
+  el('circle', { class: 'tap', cx: 690, cy: 225, r: 2 }, gF);
 
   // узел обвязки калорифера под установкой
   const gW = grp(U, { id: 'water' });
   const { sx, rx } = coilPorts;
+  dpGauge(gW, 'pd3a', 'flt', 394, 588, ['M389 601 V606 H322 V575', 'M399 601 V606 H438 V575'], 0);
+  dpGauge(gW, 'pd5a', 'pd-sa', 870, 588, ['M865 601 V606 H772 V575', 'M875 601 V606 H930 V575'], 0);
+  for (const x of [322, 438, 772, 930]) el('circle', { class: 'tap', cx: x, cy: 575, r: 2 }, gW);
   pipe(gW, [[470, 776], [470, 604], [sx, 604], [sx, LO1]], 'hot');
   pipe(gW, [[rx, LO1], [rx, 604], [620, 604], [620, 776]], 'cold');
   pipe(gW, [[620, 700], [484, 700]], 'cold');
+  for (const x of [sx, rx]) el('rect', { class: 'sleeve', x: x - 8, y: BASE1 - 1, width: 16, height: 5, rx: 1 }, gW);
   const WPATHS = {
     src: 'M470 776 V713',
     sup: `M470 687 V604 H${sx} V${LO1}`,
@@ -669,56 +974,66 @@ window.PVU_CONFIG = { demo: false };</code></pre>
   for (const [id, d] of Object.entries(WPATHS)) el('path', { id: `w-${id}`, class: `pflow ${id === 'src' || id === 'sup' ? 'hot' : 'cold'}`, d }, gW);
   el('path', { class: 'pipe-end hot', d: 'M461 790 L470 777 L479 790 Z' }, gW);
   el('path', { class: 'pipe-end cold', d: 'M611 777 L629 777 L620 790 Z' }, gW);
+  for (const [x, y] of [[470, 604], [620, 604], [620, 700]]) el('circle', { class: 'elbow', cx: x, cy: y, r: 5.5 }, gW);
+  ballValve(gW, 470, 764);
+  ballValve(gW, 620, 764);
+  strainer(gW, 470, 728);
 
-  // насос M 2е
+  // насос M 2е: двигатель с клеммной коробкой, фонарь, корпус с фланцами
   const gPump = grp(gW, { class: 'eq', id: 'eq-pump', 'data-dev': 'pump' });
-  el('rect', { class: 'motor', x: 426, y: 640, width: 28, height: 20, rx: 3 }, gPump);
-  for (let x = 431; x < 452; x += 5) el('line', { class: 'motor-fin', x1: x, x2: x, y1: 642, y2: 658 }, gPump);
-  el('rect', { class: 'motor', x: 453, y: 645, width: 5, height: 10 }, gPump);
+  el('rect', { class: 'pflange', x: 461, y: 630, width: 18, height: 4 }, gPump);
+  el('rect', { class: 'pflange', x: 461, y: 666, width: 18, height: 4 }, gPump);
+  el('rect', { class: 'motor-h', x: 424, y: 639, width: 30, height: 22, rx: 4 }, gPump);
+  for (let x = 429; x < 452; x += 4) el('line', { class: 'motor-fin', x1: x, x2: x, y1: 641, y2: 659 }, gPump);
+  el('rect', { class: 'motor-cap', x: 419, y: 641, width: 7, height: 18, rx: 3 }, gPump);
+  el('rect', { class: 'tbox', x: 434, y: 632, width: 12, height: 8, rx: 1 }, gPump);
+  el('rect', { class: 'motor-h', x: 453, y: 644, width: 6, height: 12 }, gPump);
   el('circle', { class: 'pump-body', cx: 470, cy: 650, r: 14 }, gPump);
   const pumpWheel = grp(grp(gPump, { transform: 'translate(470 650)' }), { class: 'wheel' });
-  for (let i = 0; i < 5; i++) el('path', { d: 'M3 0 Q6 -4 9 -3', transform: `rotate(${i * 72})`, style: 'stroke:#4b5158;stroke-width:1.8' }, pumpWheel);
+  for (let i = 0; i < 6; i++) el('path', { d: 'M3 0 Q6 -4 9.5 -3', transform: `rotate(${i * 60})`, style: 'stroke:#4b5158;stroke-width:1.8' }, pumpWheel);
   el('circle', { class: 'hub', cx: 470, cy: 650, r: 3.5 }, gPump);
 
-  // трёхходовой клапан M 1в и обратный клапан на перемычке
+  // трёхходовой клапан M 1в с приводом и обратный клапан на перемычке
   const gValve = grp(gW, { class: 'eq', id: 'eq-valve', 'data-dev': 'valve' });
+  el('rect', { class: 'pflange', x: 461, y: 683, width: 18, height: 3 }, gValve);
+  el('rect', { class: 'pflange', x: 461, y: 714, width: 18, height: 3 }, gValve);
+  el('rect', { class: 'pflange', x: 485, y: 691, width: 3, height: 18 }, gValve);
   el('path', { class: 'valve', d: 'M461 687 H479 L470 700 Z M461 713 H479 L470 700 Z M484 691 V709 L470 700 Z' }, gValve);
+  el('circle', { class: 'valve-bonnet', cx: 470, cy: 700, r: 4 }, gValve);
   el('line', { class: 'stem', x1: 452, y1: 700, x2: 466, y2: 700 }, gValve);
-  box(gValve, 426, 452, 688, 712, 0, 0.12, 'act');
+  box(gValve, 424, 452, 686, 714, 0, 0.12, 'act');
+  el('circle', { class: 'act-dial', cx: 438, cy: 695, r: 5 }, gValve);
+  const valveInd = el('line', { class: 'act-ind', x1: 438, y1: 695, x2: 438, y2: 690 }, gValve);
+  el('rect', { class: 'act-label', x: 431, y: 703, width: 14, height: 7, rx: 1 }, gValve);
   const gCv = grp(gW, { 'data-dev': 'valve' });
-  el('path', { class: 'valve', d: 'M560 692 V708 L546 700 Z' }, gCv);
-  el('line', { x1: 544, y1: 691, x2: 544, y2: 709, style: 'stroke:#2e3237;stroke-width:2' }, gCv);
+  el('rect', { class: 'pflange', x: 562, y: 692, width: 3, height: 16 }, gCv);
+  el('rect', { class: 'pflange', x: 540, y: 692, width: 3, height: 16 }, gCv);
+  el('path', { class: 'valve', d: 'M561 693 V707 L546 700 Z' }, gCv);
+  el('line', { x1: 545, y1: 692, x2: 545, y2: 708, style: 'stroke:#2e3237;stroke-width:2' }, gCv);
 
-  // термометр и манометр со стрелками
-  const NEEDLES = {};
-  function gauge(g, id, cx, cy, pipeX) {
-    const d = grp(g, { class: 'eq', id: `eq-${id}`, 'data-dev': id });
-    el('line', { class: 'gauge-stem', x1: cx + 14, y1: cy, x2: pipeX - 4, y2: cy }, d);
-    el('circle', { class: 'gauge-rim', cx, cy, r: 15 }, d);
-    el('circle', { class: 'gauge-face', cx, cy, r: 12.5 }, d);
-    for (let i = 0; i <= 8; i++) {
-      const a = (-135 + i * 33.75) * Math.PI / 180, s = Math.sin(a), c = -Math.cos(a);
-      el('line', { class: 'gauge-tick', x1: (cx + s * 9.5).toFixed(1), y1: (cy + c * 9.5).toFixed(1), x2: (cx + s * 12).toFixed(1), y2: (cy + c * 12).toFixed(1) }, d);
-    }
-    NEEDLES[id] = { el: el('line', { class: 'needle', x1: cx, y1: cy, x2: cx, y2: cy - 10 }, d), cx, cy };
-    el('circle', { class: 'gauge-hub', cx, cy, r: 2 }, d);
-  }
+  // местные термометр и манометр
   gauge(gW, 'ti', 428, 622, 470);
   gauge(gW, 'pi', 428, 748, 470);
 
-  // датчик обратной воды TE 2а
+  // датчик обратной воды TE 2а в гильзе
   const gTe = grp(gW, { class: 'eq', id: 'eq-te-ret', 'data-dev': 'te-ret' });
-  el('line', { class: 'stem', x1: 624, y1: 646, x2: 632, y2: 646 }, gTe);
-  box(gTe, 632, 648, 638, 654, 0, 0.1, 'sensor');
+  el('rect', { class: 'pflange', x: 624, y: 642, width: 8, height: 8 }, gTe);
+  box(gTe, 632, 650, 637, 655, 0, 0.1, 'sensor');
+  el('circle', { class: 'sensor-knob', cx: 641, cy: 646, r: 2.5 }, gTe);
 
-  // правые воздуховоды: из помещения и в помещение
+  // правые воздуховоды: гибкая вставка, короб с фланцами, проём
   const gR = grp(U);
-  box(gR, X1, 1250, 262, 370, 0.12, 0.88, 'duct');
-  poly(gR, fX(1250, 272, 360, 0.2, 0.8), 'opening');
-  badge(gR, P(1250, 316, 0.5), -1);
-  box(gR, X1, 1250, 420, 532, 0.12, 0.88, 'duct');
-  poly(gR, fX(1250, 430, 522, 0.2, 0.8), 'opening');
-  badge(gR, P(1250, 476, 0.5), 1);
+  for (const [y0, y1, dir] of [[262, 370, -1], [420, 532, 1]]) {
+    flexConn(gR, X1, X1 + 16, y0 + 2, y1 - 2);
+    flange(gR, X1 + 16, y0, y1, 's');
+    flange(gR, 1190, y0, y1, 's');
+    ductRun(gR, X1 + 16, 1268, y0, y1);
+    flange(gR, X1 + 16, y0, y1, 'tf');
+    flange(gR, 1190, y0, y1, 'tf');
+    box(gR, 1266, 1272, y0 - 4, y1 + 4, 0.09, 0.91, 'flange');
+    poly(gR, fX(1272, y0 + 6, y1 - 6, 0.18, 0.82), 'opening');
+    badge(gR, P(1272, (y0 + y1) / 2, 0.5), dir);
+  }
 
   /* ================= Подписи и блоки данных ================= */
   const BLOCK_ROWS = [];
@@ -779,7 +1094,7 @@ window.PVU_CONFIG = { demo: false };</code></pre>
   txt(L, 22, 472, 'lbl', 'Наружный');
   txt(L, 22, 488, 'lbl', 'воздух');
   txt(L, 1258, 204, 'lbl', 'Из помещения', 'middle');
-  txt(L, 1185, 568, 'lbl', 'В помещение', 'middle');
+  txt(L, 1256, 568, 'lbl', 'В помещение', 'middle');
   txt(L, 470, 810, 'link', 'Т1 от теплосети');
   txt(L, 620, 810, 'link', 'Т2 в теплосеть');
 
@@ -798,14 +1113,22 @@ window.PVU_CONFIG = { demo: false };</code></pre>
     { label: 'Допуск', val: () => S.alarm_room ? 'Авария' : 'Норма', st: () => S.alarm_room ? 'alarm' : 'norm' },
   ] });
 
+  // комнатный датчик TC 1а с индикатором
+  const tst = grp(L, { 'data-dev': 'room' });
+  el('rect', { class: 'tstat', x: 1112, y: 96, width: 42, height: 56, rx: 6 }, tst);
+  el('rect', { class: 'lcd', x: 1118, y: 104, width: 30, height: 17, rx: 2 }, tst);
+  const tstVal = txt(tst, 1133, 117, 'lcd-t', '—');
+  for (const cx of [1126, 1140]) el('circle', { class: 'tstat-btn', cx, cy: 138, r: 4 }, tst);
+  txt(tst, 1133, 166, 'btag', 'TC 1а', 'middle');
+
   // нижний ряд
-  block(L, { dev: 'dmp-oa', x: 26, y: 614, title: 'Заслонка наружного воздуха', tag: 'M 6з', w: 70,
+  block(L, { dev: 'dmp-oa', x: 26, y: 624, title: 'Заслонка наружного воздуха', tag: 'M 6з', w: 70,
     rows: [{ label: 'Положение', val: () => openText(S.damper_oa_pos) }] });
-  block(L, { dev: 'flt', x: 266, y: 614, title: 'Фильтр', tag: 'PD 3а', w: 70, rows: [
+  block(L, { dev: 'flt', x: 266, y: 624, title: 'Фильтр', tag: 'PD 3а', w: 70, rows: [
     { label: 'Перепад', val: () => fmt('filter_dp'), st: filterState },
     { label: 'Состояние', val: () => ({ alarm: 'Засорён', warn: 'Загрязнён', norm: 'Чистый' })[filterState()], st: filterState },
   ] });
-  block(L, { dev: 'htr', x: 670, y: 614, title: 'Калорифер', tag: 'узел обвязки', w: 124, rows: [
+  block(L, { dev: 'htr', x: 670, y: 624, title: 'Калорифер', tag: 'узел обвязки', w: 124, rows: [
     { label: 'Клапан M 1в', dev: 'valve', val: () => openText(S.valve_pos, 'закрыт') },
     { label: 'Насос M 2е', dev: 'pump', val: () => runText(S.pump_run) },
     { label: 'Прямая вода TI', dev: 'ti', val: () => fmt('water_supply_temp') },
@@ -814,13 +1137,13 @@ window.PVU_CONFIG = { demo: false };</code></pre>
     { label: 'Воздух TE 2б', dev: 'te-air', val: () => fmt('air_heater_temp') },
     { label: 'Термостат TS 2в', dev: 'te-air', val: () => S.alarm_freeze ? 'Сработал' : 'Норма', st: () => S.alarm_freeze ? 'alarm' : 'norm' },
   ] });
-  block(L, { dev: 'fan-sa', x: 900, y: 614, title: 'Приточный вентилятор', tag: 'M 6л · GCS 6д', w: 96, rows: [
+  block(L, { dev: 'fan-sa', x: 900, y: 624, title: 'Приточный вентилятор', tag: 'M 6л · GCS 6д', w: 96, rows: [
     { label: 'Состояние', val: () => runText(S.fan_sa_run, S.alarm_fan_sa), st: () => S.alarm_fan_sa ? 'alarm' : 'norm' },
     { label: 'Частота', val: () => speedText('fan_sa_speed') },
     { label: 'Перепад PD 5а', dev: 'pd-sa', val: () => fmt('fan_sa_dp'), st: () => S.alarm_fan_sa ? 'alarm' : 'norm' },
     { label: 'Ключ GKS 6ж', val: () => S.key_sa_local ? 'Местное' : 'Дистанц.', st: () => S.key_sa_local ? 'warn' : 'norm' },
   ] });
-  block(L, { dev: 'unit', x: 1180, y: 614, title: 'Установка', tag: 'GCS 6а', w: 86, rows: [
+  block(L, { dev: 'unit', x: 1180, y: 624, title: 'Установка', tag: 'GCS 6а', w: 86, rows: [
     { label: 'Состояние', val: () => S.unit_run ? 'Работа' : 'Стоп' },
     { label: 'Управление', val: () => S.key_ea_local || S.key_sa_local ? 'Местное' : 'Дистанц.', st: () => S.key_ea_local || S.key_sa_local ? 'warn' : 'norm' },
     { label: 'Аварии', val: () => alarmCount() ? String(alarmCount()) : 'Нет', st: () => alarmCount() ? 'alarm' : 'norm' },
@@ -915,6 +1238,8 @@ window.PVU_CONFIG = { demo: false };</code></pre>
     wxVal.textContent = S.outdoor_temp == null ? '—' : `${num(S.outdoor_temp, 1)} °C`;
     dialPtr.setAttribute('transform', `rotate(${S.unit_run ? 45 : -45} 700 82)`);
     dialOn.classList.toggle('on', !!S.unit_run);
+    svg.setAttribute('data-run', S.unit_run ? '1' : '0');
+    tstVal.textContent = num(S.room_temp, 1);
 
     const n = alarmCount(), local = S.key_ea_local || S.key_sa_local;
     pill('#st-unit', S.unit_run ? 'ok' : 'off', S.unit_run ? 'Работа' : 'Стоп');
@@ -936,7 +1261,7 @@ window.PVU_CONFIG = { demo: false };</code></pre>
 
   /* ================= Анимация ================= */
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  const A = { sa: 0, ea: 0, pump: 0, dOA: 0, dEA: 0, v: 0, ti: 0, pi: 0, angSA: 0, angEA: 0, angP: 0, offSA: 0, offEA: 0 };
+  const A = { sa: 0, ea: 0, pump: 0, dOA: 0, dEA: 0, v: 0, ti: 0, pi: 0, dp3: 0, dp4: 0, dp5: 0, angSA: 0, angEA: 0, angP: 0, offSA: 0, offEA: 0 };
   const lanesSA = [...gFlowSA.children].map(p => [p, +p.dataset.k]);
   const lanesEA = [...gFlowEA.children].map(p => [p, +p.dataset.k]);
   const WATER = Object.keys(WPATHS).map(id => ({ id, el: $(`#w-${id}`), off: 0 }));
@@ -966,6 +1291,15 @@ window.PVU_CONFIG = { demo: false };</code></pre>
     setDamper('dmp-ea', A.dEA);
     needle('ti', A.ti);
     needle('pi', A.pi);
+    A.dp3 = ease(A.dp3, clamp((S.filter_dp || 0) / 5), 0.5);
+    A.dp4 = ease(A.dp4, clamp((S.fan_ea_dp || 0) / 5), 0.5);
+    A.dp5 = ease(A.dp5, clamp((S.fan_sa_dp || 0) / 5), 0.5);
+    needle('pd3a', A.dp3);
+    needle('pd4a', A.dp4);
+    needle('pd5a', A.dp5);
+    const va = A.v * 1.48;
+    valveInd.setAttribute('x2', (438 - 4.5 * Math.sin(va)).toFixed(1));
+    valveInd.setAttribute('y2', (695 - 4.5 * Math.cos(va)).toFixed(1));
 
     const qSA = A.sa * Math.min(1, A.dOA * 1.6 + 0.04);
     const qEA = A.ea * Math.min(1, A.dEA * 1.6 + 0.04);
